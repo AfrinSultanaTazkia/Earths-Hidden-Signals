@@ -3,7 +3,8 @@ import { REGIONS, VARIABLES, GENERATE_HISTORICAL_DATA, GET_TREND_SUMMARY } from 
 import SouthAsiaOverviewMap from '../components/SouthAsiaOverviewMap';
 import SignalCard from '../components/SignalCard';
 import TrendChart from '../components/TrendChart';
-import { Activity, ShieldCheck, Filter, AlertCircle, Sparkles, Sliders } from 'lucide-react';
+import { Activity, ShieldCheck, Filter, AlertCircle, Sparkles, Sliders, Download, Info, BarChart2, Globe, Layers } from 'lucide-react';
+import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, Cell } from 'recharts';
 
 export default function ExploreTrends({ selectedRegionId, setSelectedRegionId, setActiveTab }) {
   // Read initial query parameters
@@ -36,6 +37,16 @@ export default function ExploreTrends({ selectedRegionId, setSelectedRegionId, s
     window.history.replaceState({}, '', `${window.location.pathname}?${params.toString()}`);
   };
 
+  const handleRegionChange = (rId) => {
+    setSelectedRegionId(rId);
+    setSelectedSubRegionId('all');
+    const params = new URLSearchParams(window.location.search);
+    params.set('tab', 'explore');
+    params.set('region', rId);
+    params.set('var', selectedVariableId);
+    window.history.replaceState({}, '', `${window.location.pathname}?${params.toString()}`);
+  };
+
   const handleSeasonChange = (s) => {
     setSelectedSeason(s);
     const params = new URLSearchParams(window.location.search);
@@ -58,216 +69,155 @@ export default function ExploreTrends({ selectedRegionId, setSelectedRegionId, s
     window.history.replaceState({}, '', `${window.location.pathname}?${params.toString()}`);
   };
 
-  // Generate historical data
+  // Generate historical data & trends
   const historicalData = GENERATE_HISTORICAL_DATA(region.id, variable.id);
   const trendSummary = GET_TREND_SUMMARY(region.id, variable.id);
 
-  // Four Indicator Summary Cards for Selected Region
-  const indicatorCards = VARIABLES.map(v => {
-    const summary = GET_TREND_SUMMARY(region.id, v.id);
-    const hist = GENERATE_HISTORICAL_DATA(region.id, v.id);
-    const latest = hist[hist.length - 1]?.value ?? '—';
-    const baseline = hist.slice(0, 10).reduce((a, c) => a + c.value, 0) / 10;
-    const diff = typeof latest === 'number' ? (latest - baseline).toFixed(1) : 0;
-    const diffStr = diff > 0 ? `+${diff}` : `${diff}`;
-
+  // Sen's Slope Indicator Trend Chart Data for Image 2 Bottom Left
+  const indicatorTrendData = VARIABLES.map(v => {
+    const sum = GET_TREND_SUMMARY(region.id, v.id);
+    const slopeNum = parseFloat(sum.sensSlope) || 0;
     return {
-      variable: v,
-      summary,
-      latest,
-      diffStr,
-      baseline: baseline.toFixed(1),
+      name: v.name,
+      slope: slopeNum,
+      unit: v.unit.split('/')[0],
+      isSignificant: sum.isSignificant,
+      color: v.color || '#55D6FF'
     };
   });
 
+  // Export Data to CSV (From Image 3 Mongabay style)
+  const handleExportCSV = () => {
+    const csvRows = [
+      ['Year', `${region.name} ${variable.name} (${variable.unit})`, 'Sens Slope Trend', 'Historical Note'],
+      ...historicalData.map(d => [d.year, d.value, d.sensSlopeTrend, d.eventNote ? `"${d.eventNote}"` : ''])
+    ];
+    const csvContent = "data:text/csv;charset=utf-8," + csvRows.map(e => e.join(",")).join("\n");
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", `NASA_Earth_Signals_${region.id}_${variable.id}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
-    <div style={{ paddingTop: '30px', paddingBottom: '70px' }}>
+    <div style={styles.pageContainer}>
       <div className="container">
-        {/* Page Header */}
-        <div style={styles.pageHeader}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '16px' }}>
-            <div>
-              <div className="badge badge-cyan" style={{ marginBottom: '8px' }}>
-                <Activity size={12} />
-                NASA EARTH OBSERVATION INTELLIGENCE
+        {/* TOP CLIMATE INDICATOR BAR (Image 2 & 3 Hybrid Style) */}
+        <div style={styles.topDashboardBar} className="glass-panel">
+          <div style={styles.barHeaderRow}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <div style={styles.logoBadge}>
+                <Globe size={18} color="#55D6FF" />
               </div>
-              <h1 style={styles.pageTitle}>Environmental Signals & Trend Analysis</h1>
-              <p style={styles.pageSub}>
-                Investigating 44-year satellite observations across South Asia with non-parametric statistical tests (Mann-Kendall & Sen’s Slope) for science-backed preparedness.
-              </p>
-            </div>
-
-            {/* View Mode Toggle */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'rgba(13,21,39,0.8)', padding: '4px', borderRadius: '8px', border: '1px solid var(--border-subtle)' }}>
-              <button
-                onClick={() => setShowTechnical(false)}
-                style={{
-                  ...styles.toggleTabBtn,
-                  ...(!showTechnical ? styles.toggleTabBtnActive : {})
-                }}
-              >
-                Beginner View
-              </button>
-              <button
-                onClick={() => setShowTechnical(true)}
-                style={{
-                  ...styles.toggleTabBtn,
-                  ...(showTechnical ? styles.toggleTabBtnActive : {})
-                }}
-              >
-                Judges / Technical
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* Top Controls & Filter Bar */}
-        <div style={styles.filterBar} className="glass-panel">
-          <div style={styles.filterGroup}>
-            <label style={styles.filterLabel}>1. Select Country</label>
-            <div style={styles.buttonToggleRow}>
-              {REGIONS.map((r) => (
-                <button
-                  key={r.id}
-                  onClick={() => {
-                    setSelectedRegionId(r.id);
-                    setSelectedSubRegionId('all');
-                    const params = new URLSearchParams(window.location.search);
-                    params.set('tab', 'explore');
-                    params.set('region', r.id);
-                    params.set('var', selectedVariableId);
-                    window.history.replaceState({}, '', `${window.location.pathname}?${params.toString()}`);
-                  }}
-                  style={{
-                    ...styles.filterBtn,
-                    ...(selectedRegionId === r.id ? styles.filterBtnActive : {})
-                  }}
-                >
-                  <span style={{ fontSize: '1.2rem' }}>{r.flag}</span>
-                  <span>{r.name}</span>
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <div style={styles.filterGroup}>
-            <label style={styles.filterLabel}>2. Select Environmental Indicator</label>
-            <div style={styles.buttonToggleRow}>
-              {VARIABLES.map((v) => (
-                <button
-                  key={v.id}
-                  onClick={() => handleVariableChange(v.id)}
-                  style={{
-                    ...styles.filterBtn,
-                    ...(selectedVariableId === v.id ? styles.filterBtnActive : {})
-                  }}
-                >
-                  <span>{v.symbol}</span>
-                  <span>{v.name}</span>
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Secondary Selectors (Sub-region & Season) */}
-          <div style={styles.subFilterRow}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <Sliders size={14} color="var(--color-cyan)" />
-              <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Filter Scope:</span>
-            </div>
-            
-            <select
-              value={selectedSubRegionId}
-              onChange={(e) => handleSubRegionChange(e.target.value)}
-              style={styles.selectInput}
-              aria-label="Select Sub-Region"
-            >
-              <option value="all">All Study Sub-Regions in {region.name}</option>
-              {region.subRegions.map((sr) => (
-                <option key={sr.id} value={sr.id}>{sr.name}</option>
-              ))}
-            </select>
-
-            <select
-              value={selectedSeason}
-              onChange={(e) => handleSeasonChange(e.target.value)}
-              style={styles.selectInput}
-              aria-label="Select Temporal Season"
-            >
-              <option value="annual">Full Annual Baseline (12-Month)</option>
-              <option value="monsoon">Monsoon Peak (June–September)</option>
-              <option value="dry">Dry Pre-Monsoon (October–May)</option>
-            </select>
-          </div>
-        </div>
-
-        {/* 4 Environmental Indicator Overview Cards */}
-        <div style={styles.indicatorOverviewGrid}>
-          {indicatorCards.map(({ variable: v, summary, latest, diffStr, baseline }) => {
-            const isSelected = v.id === selectedVariableId;
-            return (
-              <div
-                key={v.id}
-                onClick={() => handleVariableChange(v.id)}
-                style={{
-                  ...styles.indicatorCard,
-                  ...(isSelected ? styles.indicatorCardActive : {})
-                }}
-                className="glass-panel"
-                role="button"
-                tabIndex={0}
-              >
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                    <span style={{ fontSize: '1.2rem' }}>{v.symbol}</span>
-                    <span style={{ fontSize: '0.86rem', fontWeight: '700', color: '#FFF' }}>{v.name}</span>
-                  </div>
-                  <span className={`badge ${summary.significanceBadge?.class || 'badge-cyan'}`} style={{ fontSize: '0.62rem' }}>
-                    {summary.directionLabel}
-                  </span>
-                </div>
-
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '6px' }}>
-                  <div style={{ fontSize: '1.4rem', fontWeight: '800', color: '#FFF' }}>
-                    {latest} <span style={{ fontSize: '0.75rem', fontWeight: '500', color: '#7E8EA6' }}>{v.unit.split('/')[0]}</span>
-                  </div>
-                  <div style={{ fontSize: '0.78rem', fontWeight: '700', color: diffStr.startsWith('+') ? '#55D6FF' : '#FFBF69' }}>
-                    {diffStr} vs base
-                  </div>
-                </div>
-
-                <div style={{ fontSize: '0.72rem', color: '#A6B4C8', lineHeight: 1.4, marginBottom: '8px' }}>
-                  Rate: <strong>{summary.howFastRate || summary.rate || '—'}</strong>
-                </div>
-
-                <div style={{ fontSize: '0.66rem', color: '#7E8EA6', fontFamily: "'JetBrains Mono', monospace", borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '6px' }}>
-                  Source: {v.dataset.split('/')[0]}
+              <div>
+                <h1 style={styles.dashboardTitle}>Global Climate Indicators - South Asia Dashboard</h1>
+                <div style={{ fontSize: '0.72rem', color: '#7E8EA6', fontFamily: "'JetBrains Mono', monospace" }}>
+                  NASA Space Apps Challenge 2026 · Earth's Hidden Signals Intelligence
                 </div>
               </div>
-            );
-          })}
+            </div>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              {/* View Mode Toggle */}
+              <div style={styles.toggleGroup}>
+                <button
+                  onClick={() => setShowTechnical(false)}
+                  style={{ ...styles.toggleBtn, ...(!showTechnical ? styles.toggleBtnActive : {}) }}
+                >
+                  Beginner View
+                </button>
+                <button
+                  onClick={() => setShowTechnical(true)}
+                  style={{ ...styles.toggleBtn, ...(showTechnical ? styles.toggleBtnActive : {}) }}
+                >
+                  Judges / Technical
+                </button>
+              </div>
+
+              {/* Export Data Button (From Image 3) */}
+              <button
+                onClick={handleExportCSV}
+                style={styles.exportBtn}
+                title="Export NASA Time Series Observation Data as CSV"
+              >
+                <Download size={13} />
+                <span>Export Data</span>
+              </button>
+            </div>
+          </div>
+
+          {/* FILTER CONTROLS ROW (Image 2 & 3 Dropdown Architecture) */}
+          <div style={styles.filterControlsRow}>
+            <div style={styles.filterField}>
+              <label style={styles.fieldLabel}>Indicator / Variable</label>
+              <select
+                value={selectedVariableId}
+                onChange={(e) => handleVariableChange(e.target.value)}
+                style={styles.selectControl}
+              >
+                {VARIABLES.map(v => (
+                  <option key={v.id} value={v.id}>{v.symbol} {v.name} ({v.unit})</option>
+                ))}
+              </select>
+            </div>
+
+            <div style={styles.filterField}>
+              <label style={styles.fieldLabel}>Country / Region</label>
+              <select
+                value={selectedRegionId}
+                onChange={(e) => handleRegionChange(e.target.value)}
+                style={styles.selectControl}
+              >
+                {REGIONS.map(r => (
+                  <option key={r.id} value={r.id}>{r.flag} {r.name} ({r.disasterType})</option>
+                ))}
+              </select>
+            </div>
+
+            <div style={styles.filterField}>
+              <label style={styles.fieldLabel}>Study Sub-Region</label>
+              <select
+                value={selectedSubRegionId}
+                onChange={(e) => handleSubRegionChange(e.target.value)}
+                style={styles.selectControl}
+              >
+                <option value="all">All Study Zones in {region.name}</option>
+                {region.subRegions.map(sr => (
+                  <option key={sr.id} value={sr.id}>{sr.name}</option>
+                ))}
+              </select>
+            </div>
+
+            <div style={styles.filterField}>
+              <label style={styles.fieldLabel}>Aggregation Method / Season</label>
+              <select
+                value={selectedSeason}
+                onChange={(e) => handleSeasonChange(e.target.value)}
+                style={styles.selectControl}
+              >
+                <option value="annual">Full 44-Year Annual Baseline (1981–2025)</option>
+                <option value="monsoon">Monsoon Peak Surge (June–Sept)</option>
+                <option value="dry">Dry Pre-Monsoon Deficit (Oct–May)</option>
+              </select>
+            </div>
+          </div>
         </div>
 
-        {/* Dashboard Content Grid */}
-        <div style={styles.dashboardGrid}>
-          {/* Left Column: Interactive Map & Signal Explanation */}
-          <div style={styles.leftCol}>
-            {/* Interactive Leaflet Map */}
+        {/* MAIN SPLIT SCREEN LAYOUT (Image 2 Architecture) */}
+        <div style={styles.splitDashboardGrid}>
+          {/* LEFT 50%: INTERACTIVE GEOSPATIAL MAP (Image 2 Left Half) */}
+          <div style={styles.mapColumn}>
             <SouthAsiaOverviewMap
               selectedRegionId={selectedRegionId}
-              onSelectRegion={(rId) => {
-                setSelectedRegionId(rId);
-                const params = new URLSearchParams(window.location.search);
-                params.set('tab', 'explore');
-                params.set('region', rId);
-                params.set('var', selectedVariableId);
-                window.history.replaceState({}, '', `${window.location.pathname}?${params.toString()}`);
-              }}
+              onSelectRegion={handleRegionChange}
               variableId={selectedVariableId}
             />
 
-            {/* Signal Summary Card with 3-Part Interpretation */}
-            <div style={{ marginTop: '24px' }}>
+            {/* Signal Card / Technical Drawer */}
+            <div style={{ marginTop: '16px' }}>
               <SignalCard
                 regionId={region.id}
                 variableId={variable.id}
@@ -276,9 +226,9 @@ export default function ExploreTrends({ selectedRegionId, setSelectedRegionId, s
             </div>
           </div>
 
-          {/* Right Column: Chart & Monitoring Recommendations */}
-          <div style={styles.rightCol}>
-            {/* Long-Term Recharts Line Chart */}
+          {/* RIGHT 50%: MULTI-PANEL SCIENTIFIC VISUALIZATION (Image 2 Right Half) */}
+          <div style={styles.analyticsColumn}>
+            {/* TOP RIGHT: HISTORICAL TIME-SERIES CHART (Image 2 Top-Right) */}
             <TrendChart
               data={historicalData}
               regionId={region.id}
@@ -287,120 +237,68 @@ export default function ExploreTrends({ selectedRegionId, setSelectedRegionId, s
               unit={variable.unit}
             />
 
-            {/* AUTOMATIC REGIONAL SYNTHESIS (5 MANDATORY FRAMING QUESTIONS) */}
-            <div style={styles.autoInterpretationCard} className="glass-panel glass-panel-glow">
-              <div style={styles.autoHeader}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <span style={{ fontSize: '1.4rem' }}>{region.flag}</span>
-                  <div>
-                    <span className="badge badge-cyan" style={{ fontSize: '0.68rem' }}>AUTOMATIC REGIONAL SYNTHESIS</span>
-                    <h3 style={{ fontSize: '1.15rem', color: '#FFF', marginTop: '2px' }}>
-                      {region.name} · {variable.name} Environmental Analysis
-                    </h3>
+            {/* BOTTOM RIGHT GRID: 2 SUB-PANELS (Image 2 Bottom-Right) */}
+            <div style={styles.bottomAnalyticsGrid}>
+              {/* SUB-PANEL 1: INDICATOR TREND BAR CHART (Image 2 Bottom-Left) */}
+              <div style={styles.indicatorTrendCard} className="glass-panel">
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+                  <span style={styles.subCardTitle}>INDICATOR TREND (SEN'S SLOPE)</span>
+                  <span style={{ fontSize: '0.65rem', color: '#55D6FF', fontFamily: "'JetBrains Mono', monospace" }}>{region.name}</span>
+                </div>
+                <div style={{ width: '100%', height: 160 }}>
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={indicatorTrendData} layout="vertical" margin={{ top: 5, right: 20, left: 20, bottom: 5 }}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
+                      <XAxis type="number" stroke="#7E8EA6" fontSize={10} />
+                      <YAxis type="category" dataKey="name" stroke="#A6B4C8" fontSize={10} width={90} />
+                      <Tooltip
+                        contentStyle={{ background: '#0D1527', border: '1px solid #55D6FF', borderRadius: '6px', fontSize: '11px' }}
+                      />
+                      <Bar dataKey="slope" fill="#55D6FF" radius={[0, 4, 4, 0]}>
+                        {indicatorTrendData.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={entry.slope >= 0 ? '#55D6FF' : '#FF647C'} />
+                        ))}
+                      </Bar>
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+                <div style={{ fontSize: '0.65rem', color: '#7E8EA6', marginTop: '6px', textAlign: 'center' }}>
+                  Rate of change / year estimated by Sen's Slope median estimator
+                </div>
+              </div>
+
+              {/* SUB-PANEL 2: 5-STEP AUTOMATIC REGIONAL SYNTHESIS & DECISION SUPPORT */}
+              <div style={styles.indicatorTrendCard} className="glass-panel">
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                  <span style={styles.subCardTitle}>5-STEP EVIDENCE SYNTHESIS</span>
+                  <span className="badge badge-cyan" style={{ fontSize: '0.6rem' }}>AUTO-SYNTHESIS</span>
+                </div>
+
+                <div style={styles.synthesisScroll}>
+                  <div style={styles.synthItem}>
+                    <strong style={{ color: '#55D6FF' }}>1. What did we find?</strong>
+                    <p style={styles.synthText}>{trendSummary.whatIsChanging || `${variable.name} is ${trendSummary.directionLabel}`} at {trendSummary.howFastRate || trendSummary.rate}.</p>
+                  </div>
+
+                  <div style={styles.synthItem}>
+                    <strong style={{ color: '#37D6A3' }}>2. Historical Comparison:</strong>
+                    <p style={styles.synthText}>
+                      Baseline: {(historicalData.slice(0, 10).reduce((a, c) => a + c.value, 0) / 10).toFixed(1)} vs Recent: {(historicalData.slice(-5).reduce((a, c) => a + c.value, 0) / 5).toFixed(1)} {variable.unit.split('/')[0]}
+                    </p>
+                  </div>
+
+                  <div style={styles.synthItem}>
+                    <strong style={{ color: '#FFBF69' }}>3. What could this mean?</strong>
+                    <p style={styles.synthText}>{trendSummary.simpleMeaning}</p>
+                  </div>
+
+                  <div style={styles.synthItem}>
+                    <strong style={{ color: '#818CF8' }}>4. Decision Support:</strong>
+                    <p style={styles.synthText}>
+                      {region.id === 'bangladesh' ? 'Monitor upstream discharge and soil saturation ahead of monsoon peaks.' : region.id === 'nepal' ? 'Track 24-hr rainfall spikes on steep slopes to anticipate shear stress.' : region.id === 'india' ? 'Monitor MODIS thermal hotspots during pre-monsoon heat spells.' : 'Track canal gates and rapid monsoon moisture swings.'}
+                    </p>
                   </div>
                 </div>
-              </div>
-
-              {/* 1. What did we find? */}
-              <div style={styles.autoSection}>
-                <div style={styles.autoSecHeader}>
-                  <span style={styles.secNum}>1</span>
-                  <span style={styles.secTitle}>WHAT DID WE FIND?</span>
-                </div>
-                <p style={styles.autoSecText}>
-                  Multi-decadal NASA Earth observations confirm <strong>{trendSummary.whatIsChanging || `${variable.name} is ${trendSummary.directionLabel}`}</strong> across {region.name} at a measured rate of <strong>{trendSummary.howFastRate || trendSummary.rate}</strong>. {trendSummary.isSignificant ? `The Mann-Kendall monotonic test confirms high statistical significance (${trendSummary.pValue}) across 44 years of observational records.` : `Observation data reflects natural seasonal oscillations without a statistically monotonic upward or downward trend.`}
-                </p>
-              </div>
-
-              {/* 2. How does the evidence compare with historical conditions? */}
-              <div style={styles.autoSection}>
-                <div style={styles.autoSecHeader}>
-                  <span style={{ ...styles.secNum, background: 'rgba(85,214,255,0.15)', color: '#55D6FF', borderColor: '#55D6FF' }}>2</span>
-                  <span style={{ ...styles.secTitle, color: '#55D6FF' }}>HOW DOES THE EVIDENCE COMPARE WITH HISTORICAL CONDITIONS?</span>
-                </div>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '8px', marginBottom: '10px' }}>
-                  <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '8px', padding: '10px' }}>
-                    <div style={{ fontSize: '0.68rem', color: '#7E8EA6' }}>10-Yr Base (1981–1990)</div>
-                    <div style={{ fontSize: '1.1rem', fontWeight: '800', color: '#FFF' }}>
-                      {(historicalData.slice(0, 10).reduce((a, c) => a + c.value, 0) / 10).toFixed(1)} <span style={{ fontSize: '0.7rem', color: '#7E8EA6' }}>{variable.unit.split('/')[0]}</span>
-                    </div>
-                  </div>
-                  <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '8px', padding: '10px' }}>
-                    <div style={{ fontSize: '0.68rem', color: '#7E8EA6' }}>Recent (2020–2025)</div>
-                    <div style={{ fontSize: '1.1rem', fontWeight: '800', color: '#55D6FF' }}>
-                      {(historicalData.slice(-5).reduce((a, c) => a + c.value, 0) / 5).toFixed(1)} <span style={{ fontSize: '0.7rem', color: '#7E8EA6' }}>{variable.unit.split('/')[0]}</span>
-                    </div>
-                  </div>
-                  <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '8px', padding: '10px' }}>
-                    <div style={{ fontSize: '0.68rem', color: '#7E8EA6' }}>Baseline Departure</div>
-                    <div style={{ fontSize: '1.1rem', fontWeight: '800', color: '#37D6A3' }}>
-                      {(() => {
-                        const base = historicalData.slice(0, 10).reduce((a, c) => a + c.value, 0) / 10;
-                        const rec = historicalData.slice(-5).reduce((a, c) => a + c.value, 0) / 5;
-                        const diff = (rec - base).toFixed(1);
-                        return diff > 0 ? `+${diff}` : diff;
-                      })()} <span style={{ fontSize: '0.7rem', color: '#7E8EA6' }}>{variable.unit.split('/')[0]}</span>
-                    </div>
-                  </div>
-                </div>
-                <p style={styles.autoSecText}>
-                  Comparing the modern 5-year observational window (2020–2025) against the 1980s historical reference baseline reveals a persistent shift above baseline averages.
-                </p>
-              </div>
-
-              {/* 3. What could this mean for the selected region? */}
-              <div style={styles.autoSection}>
-                <div style={styles.autoSecHeader}>
-                  <span style={{ ...styles.secNum, background: 'rgba(255,191,105,0.15)', color: '#FFBF69', borderColor: '#FFBF69' }}>3</span>
-                  <span style={{ ...styles.secTitle, color: '#FFBF69' }}>WHAT COULD THIS MEAN FOR {region.name.toUpperCase()}?</span>
-                </div>
-                <p style={styles.autoSecText}>
-                  {trendSummary.simpleMeaning} {region.id === 'bangladesh' ? 'In deltaic floodplains, prolonged soil saturation combined with rainfall surges increases surface water runoff impedance and riverbank pressure.' : region.id === 'nepal' ? 'Along steep high-altitude Himalayan mountain corridors, concentrated precipitation increases topsoil shear stress and localized slope instability.' : region.id === 'india' ? 'Persistent surface warming paired with root-zone moisture deficits accelerates vegetative dry biomass stress across forest tracts.' : 'Rapid shifts between arid moisture deficits and concentrated monsoon surges strain river basin containment and irrigation networks.'}
-                </p>
-                <div style={styles.distinctionNote}>
-                  ℹ️ <em>Scientifically supported relationship: Environmental shifts influence background conditions, but do not claim to predict specific disaster events.</em>
-                </div>
-              </div>
-
-              {/* 4. What should we monitor? */}
-              <div style={styles.autoSection}>
-                <div style={styles.autoSecHeader}>
-                  <span style={{ ...styles.secNum, background: 'rgba(55,214,163,0.15)', color: '#37D6A3', borderColor: '#37D6A3' }}>4</span>
-                  <span style={{ ...styles.secTitle, color: '#37D6A3' }}>WHAT SHOULD WE MONITOR?</span>
-                </div>
-                <div style={styles.monGrid}>
-                  {trendSummary.monitoringCategories?.map((cat, i) => (
-                    <div key={i} style={styles.monBox}>
-                      <div style={styles.monCatTitle}>{cat.category}</div>
-                      <div style={styles.monCatText}>{cat.item}</div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* 5. How can communities prepare? */}
-              <div style={styles.autoSection}>
-                <div style={styles.autoSecHeader}>
-                  <span style={{ ...styles.secNum, background: 'rgba(129,140,248,0.15)', color: '#818CF8', borderColor: '#818CF8' }}>5</span>
-                  <span style={{ ...styles.secTitle, color: '#818CF8' }}>HOW CAN COMMUNITIES PREPARE?</span>
-                </div>
-                <p style={styles.autoSecText}>
-                  {region.id === 'bangladesh'
-                    ? 'Strengthen coastal polders and embankment drainage sluices, elevate seed banks and community water stations, and adjust crop planting calendars according to monsoon onset data.'
-                    : region.id === 'nepal'
-                    ? 'Deploy community slope monitors and rain gauges along vulnerable mountain passes, enforce bio-engineering slope reinforcement with deep-root vegetation, and pre-position clearing equipment.'
-                    : region.id === 'india'
-                    ? 'Establish seasonal forest firebreaks before dry spells, maintain emergency water reservoirs, and distribute heatwave advisories to agricultural workers.'
-                    : 'Upgrade canal headworks to buffer rapid monsoon surges, introduce drought-resilient seed varieties, and enhance local SMS warning networks.'}
-                </p>
-              </div>
-
-              {/* Disclaimer Notice */}
-              <div style={styles.disclaimerFootnote}>
-                <AlertCircle size={14} color="var(--color-amber)" style={{ flexShrink: 0 }} />
-                <span>
-                  <strong>Scientific Integrity:</strong> Earth's Hidden Signals is an evidence analysis system for preparedness awareness, not a speculative disaster prediction engine.
-                </span>
               </div>
             </div>
           </div>
@@ -411,230 +309,156 @@ export default function ExploreTrends({ selectedRegionId, setSelectedRegionId, s
 }
 
 const styles = {
-  pageHeader: {
-    marginBottom: '24px'
+  pageContainer: {
+    paddingTop: '24px',
+    paddingBottom: '60px',
+    background: '#050816',
+    minHeight: '90vh',
   },
-  pageTitle: {
-    fontSize: '2.2rem',
-    marginBottom: '6px'
+  topDashboardBar: {
+    padding: '16px 20px',
+    borderRadius: '16px',
+    marginBottom: '20px',
+    background: 'rgba(13, 21, 39, 0.9)',
+    border: '1px solid rgba(85, 214, 255, 0.25)',
   },
-  pageSub: {
-    fontSize: '1rem',
-    color: 'var(--text-muted)'
-  },
-  filterBar: {
-    padding: '20px',
-    borderRadius: 'var(--radius-lg)',
-    marginBottom: '30px'
-  },
-  filterGroup: {
-    marginBottom: '16px'
-  },
-  filterLabel: {
-    display: 'block',
-    fontSize: '0.75rem',
-    fontWeight: '700',
-    color: 'var(--text-muted)',
-    textTransform: 'uppercase',
-    letterSpacing: '0.04em',
-    marginBottom: '8px'
-  },
-  buttonToggleRow: {
-    display: 'flex',
-    gap: '8px',
-    flexWrap: 'wrap'
-  },
-  filterBtn: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '6px',
-    background: 'rgba(255,255,255,0.03)',
-    border: '1px solid var(--border-subtle)',
-    color: 'var(--text-muted)',
-    fontSize: '0.85rem',
-    fontWeight: '600',
-    padding: '8px 14px',
-    borderRadius: 'var(--radius-md)',
-    cursor: 'pointer',
-    transition: 'all 0.2s'
-  },
-  filterBtnActive: {
-    background: 'var(--color-cyan-glow)',
-    color: 'var(--color-cyan)',
-    borderColor: 'var(--color-cyan)',
-    boxShadow: '0 0 12px var(--color-cyan-glow)'
-  },
-  subFilterRow: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '16px',
-    paddingTop: '16px',
-    borderTop: '1px solid var(--border-subtle)',
-    flexWrap: 'wrap'
-  },
-  selectInput: {
-    background: '#070A12',
-    border: '1px solid var(--border-subtle)',
-    color: '#FFF',
-    fontSize: '0.82rem',
-    padding: '6px 12px',
-    borderRadius: '6px',
-    outline: 'none'
-  },
-  dashboardGrid: {
-    display: 'grid',
-    gridTemplateColumns: '1fr 1.2fr',
-    gap: '30px'
-  },
-  leftCol: {
-    display: 'flex',
-    flexDirection: 'column'
-  },
-  rightCol: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '24px'
-  },
-  monitoringCard: {
-    padding: '24px',
-    borderRadius: 'var(--radius-lg)'
-  },
-  monHeader: {
+  barHeaderRow: {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: '12px',
     flexWrap: 'wrap',
-    gap: '8px'
-  },
-  monSub: {
-    fontSize: '0.88rem',
-    color: 'var(--text-muted)',
-    lineHeight: 1.5,
-    marginBottom: '16px'
-  },
-  monGrid: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
     gap: '12px',
-    marginBottom: '16px'
+    marginBottom: '14px',
+    paddingBottom: '12px',
+    borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
   },
-  monBox: {
-    background: 'rgba(0,0,0,0.3)',
-    border: '1px solid var(--border-subtle)',
+  logoBadge: {
+    width: '32px',
+    height: '32px',
     borderRadius: '8px',
-    padding: '12px 14px'
-  },
-  monCatTitle: {
-    fontSize: '0.82rem',
-    fontWeight: '700',
-    color: 'var(--color-green)',
-    marginBottom: '4px'
-  },
-  monCatText: {
-    fontSize: '0.8rem',
-    color: 'var(--text-muted)',
-    lineHeight: 1.4
-  },
-  disclaimerFootnote: {
-    display: 'flex',
-    gap: '8px',
-    alignItems: 'center',
-    fontSize: '0.78rem',
-    color: 'var(--text-muted)',
-    borderTop: '1px solid var(--border-subtle)',
-    paddingTop: '12px'
-  },
-  toggleTabBtn: {
-    background: 'transparent',
-    border: 'none',
-    color: '#7E8EA6',
-    fontSize: '0.78rem',
-    fontWeight: '600',
-    padding: '6px 12px',
-    borderRadius: '6px',
-    cursor: 'pointer',
-    transition: 'all 0.2s ease',
-  },
-  toggleTabBtnActive: {
-    background: 'rgba(85, 214, 255, 0.15)',
-    color: '#55D6FF',
-    boxShadow: '0 0 8px rgba(85, 214, 255, 0.2)',
-  },
-  indicatorOverviewGrid: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
-    gap: '16px',
-    marginBottom: '32px',
-  },
-  indicatorCard: {
-    padding: '16px',
-    borderRadius: '12px',
-    cursor: 'pointer',
-    transition: 'all 0.2s ease',
-    border: '1px solid rgba(255,255,255,0.06)',
-  },
-  indicatorCardActive: {
-    borderColor: 'rgba(85, 214, 255, 0.4)',
-    background: 'rgba(17, 29, 50, 0.9)',
-    boxShadow: '0 0 16px rgba(85, 214, 255, 0.15)',
-  },
-  autoInterpretationCard: {
-    padding: '24px',
-    borderRadius: '16px',
-    marginTop: '20px',
-  },
-  autoHeader: {
-    marginBottom: '18px',
-    paddingBottom: '14px',
-    borderBottom: '1px solid rgba(85, 214, 255, 0.15)',
-  },
-  autoSection: {
-    marginBottom: '16px',
-    padding: '14px',
-    background: 'rgba(8, 13, 27, 0.4)',
-    borderRadius: '10px',
-    border: '1px solid rgba(255,255,255,0.04)',
-  },
-  autoSecHeader: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '8px',
-    marginBottom: '8px',
-  },
-  secNum: {
-    width: '20px',
-    height: '20px',
-    borderRadius: '50%',
-    background: 'rgba(85, 214, 255, 0.15)',
-    border: '1px solid #55D6FF',
-    color: '#55D6FF',
-    fontSize: '0.68rem',
-    fontWeight: '800',
+    background: 'rgba(85, 214, 255, 0.12)',
+    border: '1px solid rgba(85, 214, 255, 0.3)',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    fontFamily: "'JetBrains Mono', monospace",
   },
-  secTitle: {
-    fontSize: '0.8rem',
+  dashboardTitle: {
+    fontSize: '1.25rem',
+    fontWeight: '800',
+    color: '#FFF',
+    margin: 0,
+    fontFamily: "'Outfit', sans-serif",
+  },
+  toggleGroup: {
+    display: 'flex',
+    background: 'rgba(5, 8, 22, 0.8)',
+    padding: '3px',
+    borderRadius: '8px',
+    border: '1px solid rgba(255, 255, 255, 0.1)',
+  },
+  toggleBtn: {
+    background: 'transparent',
+    border: 'none',
+    color: '#7E8EA6',
+    fontSize: '0.74rem',
+    fontWeight: '700',
+    padding: '5px 12px',
+    borderRadius: '6px',
+    cursor: 'pointer',
+    transition: 'all 0.15s ease',
+  },
+  toggleBtnActive: {
+    background: 'rgba(85, 214, 255, 0.2)',
+    color: '#55D6FF',
+  },
+  exportBtn: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: '6px',
+    background: 'linear-gradient(135deg, #A82020 0%, #7A1212 100%)',
+    border: '1px solid #FF647C',
+    color: '#FFF',
+    fontSize: '0.76rem',
+    fontWeight: '700',
+    padding: '6px 14px',
+    borderRadius: '6px',
+    cursor: 'pointer',
+    transition: 'all 0.15s ease',
+  },
+  filterControlsRow: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+    gap: '12px',
+  },
+  filterField: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '4px',
+  },
+  fieldLabel: {
+    fontSize: '0.68rem',
+    fontWeight: '700',
+    color: '#7E8EA6',
+    textTransform: 'uppercase',
+    letterSpacing: '0.04em',
+  },
+  selectControl: {
+    background: 'rgba(5, 8, 22, 0.85)',
+    border: '1px solid rgba(85, 214, 255, 0.25)',
+    borderRadius: '8px',
+    color: '#FFF',
+    padding: '8px 12px',
+    fontSize: '0.82rem',
+    fontWeight: '600',
+    outline: 'none',
+    cursor: 'pointer',
+  },
+  splitDashboardGrid: {
+    display: 'grid',
+    gridTemplateColumns: '1fr 1fr',
+    gap: '20px',
+    alignItems: 'start',
+  },
+  mapColumn: {
+    display: 'flex',
+    flexDirection: 'column',
+  },
+  analyticsColumn: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '16px',
+  },
+  bottomAnalyticsGrid: {
+    display: 'grid',
+    gridTemplateColumns: '1fr 1fr',
+    gap: '14px',
+  },
+  indicatorTrendCard: {
+    padding: '14px',
+    borderRadius: '12px',
+    background: 'rgba(13, 21, 39, 0.8)',
+    border: '1px solid rgba(85, 214, 255, 0.2)',
+  },
+  subCardTitle: {
+    fontSize: '0.68rem',
     fontWeight: '800',
     color: '#55D6FF',
-    letterSpacing: '0.06em',
     fontFamily: "'JetBrains Mono', monospace",
+    letterSpacing: '0.06em',
   },
-  autoSecText: {
-    fontSize: '0.86rem',
-    color: '#F4F7FB',
-    lineHeight: 1.6,
-    margin: 0,
+  synthesisScroll: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '8px',
+    maxHeight: '160px',
+    overflowY: 'auto',
   },
-  distinctionNote: {
-    marginTop: '8px',
+  synthItem: {
     fontSize: '0.74rem',
+    lineHeight: 1.4,
+  },
+  synthText: {
     color: '#A6B4C8',
-    background: 'rgba(0,0,0,0.2)',
-    padding: '6px 10px',
-    borderRadius: '6px',
+    margin: '2px 0 0 0',
   },
 };
