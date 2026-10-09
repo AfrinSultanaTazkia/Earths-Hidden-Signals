@@ -287,7 +287,7 @@ export default function ExploreTrends({ selectedRegionId, setSelectedRegionId, s
               unit={variable.unit}
             />
 
-            {/* AUTOMATIC REGIONAL INTERPRETATION (3 MANDATORY SECTIONS) */}
+            {/* AUTOMATIC REGIONAL SYNTHESIS (5 MANDATORY FRAMING QUESTIONS) */}
             <div style={styles.autoInterpretationCard} className="glass-panel glass-panel-glow">
               <div style={styles.autoHeader}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -312,25 +312,61 @@ export default function ExploreTrends({ selectedRegionId, setSelectedRegionId, s
                 </p>
               </div>
 
-              {/* 2. What could this mean? */}
+              {/* 2. How does the evidence compare with historical conditions? */}
               <div style={styles.autoSection}>
                 <div style={styles.autoSecHeader}>
-                  <span style={{ ...styles.secNum, background: 'rgba(255,191,105,0.15)', color: '#FFBF69', borderColor: '#FFBF69' }}>2</span>
-                  <span style={{ ...styles.secTitle, color: '#FFBF69' }}>WHAT COULD THIS MEAN?</span>
+                  <span style={{ ...styles.secNum, background: 'rgba(85,214,255,0.15)', color: '#55D6FF', borderColor: '#55D6FF' }}>2</span>
+                  <span style={{ ...styles.secTitle, color: '#55D6FF' }}>HOW DOES THE EVIDENCE COMPARE WITH HISTORICAL CONDITIONS?</span>
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '8px', marginBottom: '10px' }}>
+                  <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '8px', padding: '10px' }}>
+                    <div style={{ fontSize: '0.68rem', color: '#7E8EA6' }}>10-Yr Base (1981–1990)</div>
+                    <div style={{ fontSize: '1.1rem', fontWeight: '800', color: '#FFF' }}>
+                      {(historicalData.slice(0, 10).reduce((a, c) => a + c.value, 0) / 10).toFixed(1)} <span style={{ fontSize: '0.7rem', color: '#7E8EA6' }}>{variable.unit.split('/')[0]}</span>
+                    </div>
+                  </div>
+                  <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '8px', padding: '10px' }}>
+                    <div style={{ fontSize: '0.68rem', color: '#7E8EA6' }}>Recent (2020–2025)</div>
+                    <div style={{ fontSize: '1.1rem', fontWeight: '800', color: '#55D6FF' }}>
+                      {(historicalData.slice(-5).reduce((a, c) => a + c.value, 0) / 5).toFixed(1)} <span style={{ fontSize: '0.7rem', color: '#7E8EA6' }}>{variable.unit.split('/')[0]}</span>
+                    </div>
+                  </div>
+                  <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '8px', padding: '10px' }}>
+                    <div style={{ fontSize: '0.68rem', color: '#7E8EA6' }}>Baseline Departure</div>
+                    <div style={{ fontSize: '1.1rem', fontWeight: '800', color: '#37D6A3' }}>
+                      {(() => {
+                        const base = historicalData.slice(0, 10).reduce((a, c) => a + c.value, 0) / 10;
+                        const rec = historicalData.slice(-5).reduce((a, c) => a + c.value, 0) / 5;
+                        const diff = (rec - base).toFixed(1);
+                        return diff > 0 ? `+${diff}` : diff;
+                      })()} <span style={{ fontSize: '0.7rem', color: '#7E8EA6' }}>{variable.unit.split('/')[0]}</span>
+                    </div>
+                  </div>
                 </div>
                 <p style={styles.autoSecText}>
-                  {trendSummary.simpleMeaning} {region.id === 'bangladesh' ? 'In deltaic floodplains, prolonged soil saturation combined with rainfall surges increases surface water runoff impedance.' : region.id === 'nepal' ? 'Along steep high-altitude Himalayan mountain corridors, concentrated precipitation increases topsoil shear stress.' : region.id === 'india' ? 'Persistent surface warming paired with root-zone moisture deficits accelerates vegetative dry biomass stress.' : 'Rapid shifts between arid moisture deficits and concentrated monsoon surges strain river basin containment.'}
+                  Comparing the modern 5-year observational window (2020–2025) against the 1980s historical reference baseline reveals a persistent shift above baseline averages.
+                </p>
+              </div>
+
+              {/* 3. What could this mean for the selected region? */}
+              <div style={styles.autoSection}>
+                <div style={styles.autoSecHeader}>
+                  <span style={{ ...styles.secNum, background: 'rgba(255,191,105,0.15)', color: '#FFBF69', borderColor: '#FFBF69' }}>3</span>
+                  <span style={{ ...styles.secTitle, color: '#FFBF69' }}>WHAT COULD THIS MEAN FOR {region.name.toUpperCase()}?</span>
+                </div>
+                <p style={styles.autoSecText}>
+                  {trendSummary.simpleMeaning} {region.id === 'bangladesh' ? 'In deltaic floodplains, prolonged soil saturation combined with rainfall surges increases surface water runoff impedance and riverbank pressure.' : region.id === 'nepal' ? 'Along steep high-altitude Himalayan mountain corridors, concentrated precipitation increases topsoil shear stress and localized slope instability.' : region.id === 'india' ? 'Persistent surface warming paired with root-zone moisture deficits accelerates vegetative dry biomass stress across forest tracts.' : 'Rapid shifts between arid moisture deficits and concentrated monsoon surges strain river basin containment and irrigation networks.'}
                 </p>
                 <div style={styles.distinctionNote}>
-                  ℹ️ <em>Scientifically supported relationship: Environmental shifts influence background conditions, but do not prove an imminent disaster event.</em>
+                  ℹ️ <em>Scientifically supported relationship: Environmental shifts influence background conditions, but do not claim to predict specific disaster events.</em>
                 </div>
               </div>
 
-              {/* 3. What should we monitor or prepare for? */}
+              {/* 4. What should we monitor? */}
               <div style={styles.autoSection}>
                 <div style={styles.autoSecHeader}>
-                  <span style={{ ...styles.secNum, background: 'rgba(55,214,163,0.15)', color: '#37D6A3', borderColor: '#37D6A3' }}>3</span>
-                  <span style={{ ...styles.secTitle, color: '#37D6A3' }}>WHAT SHOULD WE MONITOR OR PREPARE FOR?</span>
+                  <span style={{ ...styles.secNum, background: 'rgba(55,214,163,0.15)', color: '#37D6A3', borderColor: '#37D6A3' }}>4</span>
+                  <span style={{ ...styles.secTitle, color: '#37D6A3' }}>WHAT SHOULD WE MONITOR?</span>
                 </div>
                 <div style={styles.monGrid}>
                   {trendSummary.monitoringCategories?.map((cat, i) => (
@@ -340,6 +376,23 @@ export default function ExploreTrends({ selectedRegionId, setSelectedRegionId, s
                     </div>
                   ))}
                 </div>
+              </div>
+
+              {/* 5. How can communities prepare? */}
+              <div style={styles.autoSection}>
+                <div style={styles.autoSecHeader}>
+                  <span style={{ ...styles.secNum, background: 'rgba(129,140,248,0.15)', color: '#818CF8', borderColor: '#818CF8' }}>5</span>
+                  <span style={{ ...styles.secTitle, color: '#818CF8' }}>HOW CAN COMMUNITIES PREPARE?</span>
+                </div>
+                <p style={styles.autoSecText}>
+                  {region.id === 'bangladesh'
+                    ? 'Strengthen coastal polders and embankment drainage sluices, elevate seed banks and community water stations, and adjust crop planting calendars according to monsoon onset data.'
+                    : region.id === 'nepal'
+                    ? 'Deploy community slope monitors and rain gauges along vulnerable mountain passes, enforce bio-engineering slope reinforcement with deep-root vegetation, and pre-position clearing equipment.'
+                    : region.id === 'india'
+                    ? 'Establish seasonal forest firebreaks before dry spells, maintain emergency water reservoirs, and distribute heatwave advisories to agricultural workers.'
+                    : 'Upgrade canal headworks to buffer rapid monsoon surges, introduce drought-resilient seed varieties, and enhance local SMS warning networks.'}
+                </p>
               </div>
 
               {/* Disclaimer Notice */}
