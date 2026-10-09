@@ -33,30 +33,41 @@ function createPulseIcon(color, isSelected, flag, label) {
 }
 
 // Controller component to handle dynamic map resizing and pan/zoom transitions
-function MapController({ selectedRegionId }) {
+function MapController({ selectedRegionId, tileLayerType }) {
   const map = useMap();
 
   useEffect(() => {
-    // Invalidate size on mount to prevent grey/broken tiles in tabs/modals
-    const timer = setTimeout(() => {
-      map.invalidateSize();
-    }, 120);
+    // Invalidate size across multiple intervals to guarantee rendering
+    const t1 = setTimeout(() => map.invalidateSize(), 50);
+    const t2 = setTimeout(() => map.invalidateSize(), 200);
+    const t3 = setTimeout(() => map.invalidateSize(), 600);
+    const t4 = setTimeout(() => map.invalidateSize(), 1200);
+
+    const handleResize = () => map.invalidateSize();
+    window.addEventListener('resize', handleResize);
 
     const region = REGIONS.find(r => r.id === selectedRegionId);
     if (region && region.lat && region.lng) {
       map.flyTo([region.lat, region.lng], region.zoom || 6, {
-        duration: 1.2,
+        duration: 1.0,
         easeLinearity: 0.25
       });
     }
 
-    return () => clearTimeout(timer);
-  }, [selectedRegionId, map]);
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+      clearTimeout(t3);
+      clearTimeout(t4);
+      window.removeEventListener('resize', handleResize);
+    };
+  }, [selectedRegionId, tileLayerType, map]);
 
   return null;
 }
 
 export default function SouthAsiaOverviewMap({ selectedRegionId, onSelectRegion, variableId = 'rainfall' }) {
+  const [tileMode, setTileMode] = useState('dark'); // 'dark' | 'satellite' | 'osm'
   const [tileError, setTileError] = useState(false);
   const currentRegion = REGIONS.find(r => r.id === selectedRegionId) || REGIONS[0];
   const variableObj = VARIABLES.find(v => v.id === variableId) || VARIABLES[0];
@@ -64,6 +75,14 @@ export default function SouthAsiaOverviewMap({ selectedRegionId, onSelectRegion,
   const centerLat = currentRegion.lat || 23.685;
   const centerLng = currentRegion.lng || 85.0;
   const zoomLevel = currentRegion.zoom || 5;
+
+  const tileUrls = {
+    dark: "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",
+    satellite: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+    osm: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+  };
+
+  const activeTileUrl = tileError ? tileUrls.osm : tileUrls[tileMode];
 
   return (
     <div style={styles.container} className="glass-panel">
@@ -79,25 +98,51 @@ export default function SouthAsiaOverviewMap({ selectedRegionId, onSelectRegion,
           </span>
         </div>
 
-        {/* Quick Country Switcher Chips */}
-        <div style={styles.chipsRow}>
-          {REGIONS.map((r) => {
-            const isSelected = r.id === selectedRegionId;
-            return (
-              <button
-                key={r.id}
-                onClick={() => onSelectRegion(r.id)}
-                style={{
-                  ...styles.chipBtn,
-                  ...(isSelected ? styles.chipBtnActive : {})
-                }}
-                aria-label={`Focus map on ${r.name}`}
-              >
-                <span>{r.flag}</span>
-                <span>{r.name}</span>
-              </button>
-            );
-          })}
+        {/* Map Layer Switcher & Quick Country Switcher Chips */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+          <div style={styles.layerToggleGroup}>
+            <button
+              onClick={() => { setTileMode('dark'); setTileError(false); }}
+              style={{ ...styles.layerBtn, ...(tileMode === 'dark' ? styles.layerBtnActive : {}) }}
+              title="Dark Canvas Map"
+            >
+              🌙 Dark
+            </button>
+            <button
+              onClick={() => { setTileMode('satellite'); setTileError(false); }}
+              style={{ ...styles.layerBtn, ...(tileMode === 'satellite' ? styles.layerBtnActive : {}) }}
+              title="NASA / ESRI Satellite Earth Imagery"
+            >
+              🛰️ Satellite
+            </button>
+            <button
+              onClick={() => { setTileMode('osm'); setTileError(false); }}
+              style={{ ...styles.layerBtn, ...(tileMode === 'osm' ? styles.layerBtnActive : {}) }}
+              title="OpenStreetMap Standard"
+            >
+              🗺️ OSM
+            </button>
+          </div>
+
+          <div style={styles.chipsRow}>
+            {REGIONS.map((r) => {
+              const isSelected = r.id === selectedRegionId;
+              return (
+                <button
+                  key={r.id}
+                  onClick={() => onSelectRegion(r.id)}
+                  style={{
+                    ...styles.chipBtn,
+                    ...(isSelected ? styles.chipBtnActive : {})
+                  }}
+                  aria-label={`Focus map on ${r.name}`}
+                >
+                  <span>{r.flag}</span>
+                  <span>{r.name}</span>
+                </button>
+              );
+            })}
+          </div>
         </div>
       </div>
 
@@ -107,24 +152,26 @@ export default function SouthAsiaOverviewMap({ selectedRegionId, onSelectRegion,
           center={[centerLat, centerLng]}
           zoom={zoomLevel}
           scrollWheelZoom={false}
-          style={{ width: '100%', height: '100%', minHeight: '440px', background: '#050816' }}
+          style={{ width: '100%', height: '100%', minHeight: '460px', background: '#050816' }}
         >
-          {/* Tile Layer with Dark Carto Matter */}
+          {/* Dynamic Tile Layer */}
           <TileLayer
-            attribution='&copy; <a href="https://carto.com/">CARTO</a> &copy; OpenStreetMap'
-            url={tileError 
-              ? "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-              : "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
-            }
-            subdomains={['a', 'b', 'c', 'd']}
+            key={tileMode + (tileError ? '-err' : '')}
+            attribution='&copy; OpenStreetMap &copy; CARTO &copy; NASA/ESRI'
+            url={activeTileUrl}
+            subdomains={tileMode === 'satellite' ? [] : ['a', 'b', 'c', 'd']}
             maxZoom={18}
             eventHandlers={{
-              tileerror: () => setTileError(true)
+              tileerror: () => {
+                if (tileMode !== 'osm') {
+                  setTileError(true);
+                }
+              }
             }}
           />
 
           {/* Dynamic Map Controller */}
-          <MapController selectedRegionId={selectedRegionId} />
+          <MapController selectedRegionId={selectedRegionId} tileLayerType={tileMode} />
 
           {/* Regional Signal Nodes */}
           {REGIONS.map((region) => {
@@ -245,6 +292,30 @@ const styles = {
     alignItems: 'center',
     flexWrap: 'wrap',
     gap: '10px',
+  },
+  layerToggleGroup: {
+    display: 'flex',
+    gap: '4px',
+    background: 'rgba(0, 0, 0, 0.4)',
+    padding: '3px',
+    borderRadius: '8px',
+    border: '1px solid rgba(255, 255, 255, 0.08)',
+  },
+  layerBtn: {
+    background: 'transparent',
+    border: 'none',
+    color: '#A6B4C8',
+    fontSize: '0.72rem',
+    fontWeight: '600',
+    padding: '3px 8px',
+    borderRadius: '5px',
+    cursor: 'pointer',
+    transition: 'all 0.15s ease',
+  },
+  layerBtnActive: {
+    background: 'rgba(85, 214, 255, 0.2)',
+    color: '#55D6FF',
+    fontWeight: '700',
   },
   chipsRow: {
     display: 'flex',

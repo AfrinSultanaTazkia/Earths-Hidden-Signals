@@ -1,6 +1,7 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { MapContainer, TileLayer, CircleMarker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
 import { SOUTH_ASIA_LOCATIONS, COUNTRY_GROUPS } from '../data/southAsiaLocations';
 import { fetchLiveRegionData, compareLiveToTrend, getWindDirection } from '../services/openMeteoApi';
 import { REGIONS } from '../data/earthSignalsData';
@@ -17,9 +18,17 @@ L.Icon.Default.mergeOptions({
 function FlyToLocation({ lat, lng }) {
   const map = useMap();
   useEffect(() => {
+    const t1 = setTimeout(() => map.invalidateSize(), 80);
+    const t2 = setTimeout(() => map.invalidateSize(), 400);
+
     if (lat && lng) {
       map.flyTo([lat, lng], 9, { duration: 1.0, easeLinearity: 0.5 });
     }
+
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+    };
   }, [lat, lng, map]);
   return null;
 }

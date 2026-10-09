@@ -139,20 +139,147 @@ export default function Home({ setActiveTab, setSelectedRegionId }) {
         </div>
       </div>
 
-      {/* 3. EDITORIAL SCIENCE STORY SECTION */}
+      {/* 3. EARTH SYSTEM TREND DETECTIVE — MAIN THEME FLOW */}
       <section id="editorial-story" style={styles.editorialSection}>
         <div className="container">
           <div style={styles.sectionHeader}>
             <span className="badge badge-cyan" style={{ marginBottom: '14px' }}>
               <Globe size={12} />
-              Environmental Intelligence
+              BE AN EARTH SYSTEM TREND DETECTIVE 🕵️‍♂️
             </span>
             <h2 style={styles.sectionTitle}>
-              One Planet. Different Environmental Signals.
+              Global Warming → Different Regional Environmental Signals
             </h2>
             <p style={styles.sectionSubtitle}>
-              A changing climate does not express itself uniformly. The same atmospheric warming triggers deltaic waterlogging, alpine slope instability, and arid vegetation stress across diverse South Asian landscapes.
+              One warming planet triggers totally different environmental responses across South Asia due to local geography, mountain elevation, and river basins.
             </p>
+          </div>
+
+          {/* Interactive Detective Branching Matrix (Handwritten Plan Architecture) */}
+          <div style={styles.detectiveFlowContainer} className="glass-panel glass-panel-glow">
+            <div style={styles.detectiveFlowHeader}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <div style={{ width: '12px', height: '12px', borderRadius: '50%', background: '#FF647C', boxShadow: '0 0 10px #FF647C' }} />
+                <div>
+                  <div style={{ fontSize: '0.72rem', color: '#FF647C', fontWeight: '800', letterSpacing: '0.08em' }}>CORE DRIVER</div>
+                  <h3 style={{ fontSize: '1.25rem', color: '#FFF', margin: 0 }}>Global Warming & Land Surface Temperature Shift</h3>
+                </div>
+              </div>
+              <div style={{ fontSize: '0.78rem', color: '#A6B4C8', fontFamily: "'JetBrains Mono', monospace" }}>
+                NASA GISTEMP & MODIS LST (20+ Yrs)
+              </div>
+            </div>
+
+            <div style={styles.detectiveFlowDivider}>
+              <div style={{ height: '2px', background: 'linear-gradient(90deg, #55D6FF, #37D6A3, #FFBF69, #818CF8)', width: '100%' }} />
+              <div style={{ textAlign: 'center', marginTop: '-12px' }}>
+                <span style={{ background: '#0D1527', border: '1px solid rgba(85,214,255,0.4)', padding: '2px 14px', borderRadius: '12px', fontSize: '0.7rem', color: '#55D6FF', fontWeight: '700' }}>
+                  Regional Environmental Response
+                </span>
+              </div>
+            </div>
+
+            <div style={styles.detectiveGrid}>
+              {/* Bangladesh Branch */}
+              <div style={{ ...styles.detectiveCard, borderTopColor: '#55D6FF' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                  <span style={{ fontSize: '1.4rem' }}>🇧🇩</span>
+                  <span className="badge badge-cyan" style={{ fontSize: '0.62rem' }}>DELTA FLOODPLAIN</span>
+                </div>
+                <h4 style={{ fontSize: '1.05rem', color: '#FFF', marginBottom: '6px' }}>Bangladesh Flood Condition</h4>
+                <div style={styles.flowChain}>
+                  <div style={styles.flowChainStep}>Extreme Rainfall Surges</div>
+                  <div style={styles.flowChainArrow}>↓</div>
+                  <div style={styles.flowChainStep}>Soil Saturation & High Runoff</div>
+                  <div style={styles.flowChainArrow}>↓</div>
+                  <div style={{ ...styles.flowChainStep, color: '#55D6FF', fontWeight: '700' }}>River Basin Inundation Pressure</div>
+                </div>
+                <p style={styles.detectiveDesc}>
+                  Heavy upstream precipitation coupled with deltaic soil saturation increases surface runoff impedance across low-lying floodplains.
+                </p>
+                <button
+                  onClick={() => handleExploreRegion('bangladesh')}
+                  style={{ ...styles.detectiveBtn, borderColor: '#55D6FF', color: '#55D6FF' }}
+                >
+                  Inspect Bangladesh Signals →
+                </button>
+              </div>
+
+              {/* Nepal Branch */}
+              <div style={{ ...styles.detectiveCard, borderTopColor: '#37D6A3' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                  <span style={{ fontSize: '1.4rem' }}>🇳🇵</span>
+                  <span className="badge badge-green" style={{ fontSize: '0.62rem' }}>HIMALAYAN SLOPES</span>
+                </div>
+                <h4 style={{ fontSize: '1.05rem', color: '#FFF', marginBottom: '6px' }}>Nepal Landslide Condition</h4>
+                <div style={styles.flowChain}>
+                  <div style={styles.flowChainStep}>Concentrated Rainfall Spikes</div>
+                  <div style={styles.flowChainArrow}>↓</div>
+                  <div style={styles.flowChainStep}>Slope Soil Pore Saturation</div>
+                  <div style={styles.flowChainArrow}>↓</div>
+                  <div style={{ ...styles.flowChainStep, color: '#37D6A3', fontWeight: '700' }}>Mountain Slope Shear Instability</div>
+                </div>
+                <p style={styles.detectiveDesc}>
+                  Intense short-duration rainfall on steep mountain slopes accelerates soil shear stress, triggering localized slope movement.
+                </p>
+                <button
+                  onClick={() => handleExploreRegion('nepal')}
+                  style={{ ...styles.detectiveBtn, borderColor: '#37D6A3', color: '#37D6A3' }}
+                >
+                  Inspect Nepal Signals →
+                </button>
+              </div>
+
+              {/* India Branch */}
+              <div style={{ ...styles.detectiveCard, borderTopColor: '#FFBF69' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                  <span style={{ fontSize: '1.4rem' }}>🇮🇳</span>
+                  <span className="badge badge-amber" style={{ fontSize: '0.62rem' }}>FORESTS & BIOMES</span>
+                </div>
+                <h4 style={{ fontSize: '1.05rem', color: '#FFF', marginBottom: '6px' }}>India Wildfire Condition</h4>
+                <div style={styles.flowChain}>
+                  <div style={styles.flowChainStep}>Dryer Pre-Monsoon Heat</div>
+                  <div style={styles.flowChainArrow}>↓</div>
+                  <div style={styles.flowChainStep}>Low Soil Moisture + Vegetation Stress</div>
+                  <div style={styles.flowChainArrow}>↓</div>
+                  <div style={{ ...styles.flowChainStep, color: '#FFBF69', fontWeight: '700' }}>Dry Biomass Combustibility</div>
+                </div>
+                <p style={styles.detectiveDesc}>
+                  Extended pre-monsoon heating and declining root-zone moisture amplify dry matter combustibility in tropical forest tracts.
+                </p>
+                <button
+                  onClick={() => handleExploreRegion('india')}
+                  style={{ ...styles.detectiveBtn, borderColor: '#FFBF69', color: '#FFBF69' }}
+                >
+                  Inspect India Signals →
+                </button>
+              </div>
+
+              {/* Pakistan Branch */}
+              <div style={{ ...styles.detectiveCard, borderTopColor: '#818CF8' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                  <span style={{ fontSize: '1.4rem' }}>🇵🇰</span>
+                  <span className="badge badge-neutral" style={{ fontSize: '0.62rem', color: '#818CF8' }}>INDUS RIVER BASIN</span>
+                </div>
+                <h4 style={{ fontSize: '1.05rem', color: '#FFF', marginBottom: '6px' }}>Pakistan Flood & Droughts</h4>
+                <div style={styles.flowChain}>
+                  <div style={styles.flowChainStep}>High Thermal Variance</div>
+                  <div style={styles.flowChainArrow}>↓</div>
+                  <div style={styles.flowChainStep}>Arid Deficit to Sudden Monsoons</div>
+                  <div style={styles.flowChainArrow}>↓</div>
+                  <div style={{ ...styles.flowChainStep, color: '#818CF8', fontWeight: '700' }}>Canal & River Containment Stress</div>
+                </div>
+                <p style={styles.detectiveDesc}>
+                  Rapid shifts between severe arid soil moisture deficits and extreme monsoon surges challenge irrigation and flood barriers.
+                </p>
+                <button
+                  onClick={() => handleExploreRegion('pakistan')}
+                  style={{ ...styles.detectiveBtn, borderColor: '#818CF8', color: '#818CF8' }}
+                >
+                  Inspect Pakistan Signals →
+                </button>
+              </div>
+            </div>
           </div>
 
           {/* Editorial Grid: Asymmetric Data Previews */}
@@ -757,6 +884,76 @@ const styles = {
     fontSize: '0.98rem',
     color: '#A6B4C8',
     lineHeight: 1.65,
+  },
+  detectiveFlowContainer: {
+    padding: '28px',
+    borderRadius: '16px',
+    marginBottom: '36px',
+    background: 'rgba(13, 21, 39, 0.85)',
+    border: '1px solid rgba(85, 214, 255, 0.25)',
+  },
+  detectiveFlowHeader: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    flexWrap: 'wrap',
+    gap: '12px',
+    marginBottom: '20px',
+  },
+  detectiveFlowDivider: {
+    position: 'relative',
+    margin: '16px 0 28px 0',
+  },
+  detectiveGrid: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
+    gap: '16px',
+  },
+  detectiveCard: {
+    background: 'rgba(5, 8, 22, 0.65)',
+    border: '1px solid rgba(255, 255, 255, 0.08)',
+    borderTopWidth: '3px',
+    borderRadius: '12px',
+    padding: '18px',
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'space-between',
+  },
+  flowChain: {
+    background: 'rgba(255, 255, 255, 0.02)',
+    border: '1px solid rgba(255, 255, 255, 0.06)',
+    borderRadius: '8px',
+    padding: '10px',
+    margin: '10px 0 12px 0',
+    fontSize: '0.74rem',
+    color: '#A6B4C8',
+    textAlign: 'center',
+  },
+  flowChainStep: {
+    padding: '2px 0',
+  },
+  flowChainArrow: {
+    fontSize: '0.7rem',
+    color: '#55D6FF',
+    lineHeight: 1,
+    margin: '1px 0',
+  },
+  detectiveDesc: {
+    fontSize: '0.8rem',
+    color: '#7E8EA6',
+    lineHeight: 1.5,
+    marginBottom: '14px',
+  },
+  detectiveBtn: {
+    width: '100%',
+    background: 'transparent',
+    border: '1px solid',
+    borderRadius: '6px',
+    padding: '7px 10px',
+    fontSize: '0.75rem',
+    fontWeight: '700',
+    cursor: 'pointer',
+    transition: 'all 0.15s ease',
   },
   editorialGrid: {
     display: 'grid',
