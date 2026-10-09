@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import SpaceEarthHero from '../components/SpaceEarthHero';
 import SignalStoryModal from '../components/SignalStoryModal';
+import SouthAsiaOverviewMap from '../components/SouthAsiaOverviewMap';
 import { NASA_DATA_SOURCES, REGIONS } from '../data/earthSignalsData';
 import {
   Activity, Database, ArrowRight, ShieldCheck, Sparkles,
   ExternalLink, Globe, Satellite, BarChart3,
   Flame, Waves, Mountain, CloudRain, Eye, ChevronRight,
-  TrendingUp, Compass, Layers, CheckCircle2, Sliders
+  TrendingUp, Compass, Layers, CheckCircle2, Sliders, MapPin
 } from 'lucide-react';
 
 // Regional Satellite Imagery Assets
@@ -18,7 +19,7 @@ import pakistanImg from '../assets/region_pakistan.jpg';
 export default function Home({ setActiveTab, setSelectedRegionId }) {
   const [storyModalOpen, setStoryModalOpen] = useState(false);
   const [previewVar, setPreviewVar] = useState('rainfall');
-  const [previewRegion, setPreviewRegion] = useState('bangladesh');
+  const [homeMapRegion, setHomeMapRegion] = useState('bangladesh');
 
   const handleExploreRegion = (regionId) => {
     setSelectedRegionId(regionId);
@@ -232,7 +233,7 @@ export default function Home({ setActiveTab, setSelectedRegionId }) {
         </div>
       </section>
 
-      {/* 4. REGIONAL CASE STUDIES SECTION */}
+      {/* 4. REGIONAL CASE STUDIES SECTION WITH INTERACTIVE MAP */}
       <section style={styles.regionalSection}>
         <div className="container">
           <div style={styles.sectionHeader}>
@@ -244,8 +245,20 @@ export default function Home({ setActiveTab, setSelectedRegionId }) {
               Environmental Change Is Not the Same Everywhere.
             </h2>
             <p style={styles.sectionSubtitle}>
-              Explore how environmental signals manifest across four distinct ecological and topographical landscapes in South Asia.
+              Explore how environmental signals manifest across four distinct ecological and topographical landscapes in South Asia. Select a country to view live regional telemetry.
             </p>
+          </div>
+
+          {/* Interactive South Asia Map Embed on Homepage */}
+          <div style={{ marginBottom: '40px' }}>
+            <SouthAsiaOverviewMap
+              selectedRegionId={homeMapRegion}
+              onSelectRegion={(rId) => {
+                setHomeMapRegion(rId);
+                handleExploreRegion(rId);
+              }}
+              variableId="rainfall"
+            />
           </div>
 
           <div style={styles.regionalGrid}>
