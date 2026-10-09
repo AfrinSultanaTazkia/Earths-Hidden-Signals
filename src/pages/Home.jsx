@@ -116,6 +116,8 @@ export default function Home({ setActiveTab, setSelectedRegionId }) {
           const el = document.getElementById('editorial-story');
           if (el) el.scrollIntoView({ behavior: 'smooth' });
         }}
+        setSelectedRegionId={setSelectedRegionId}
+        setActiveTab={setActiveTab}
       />
 
       {/* 2. SCIENTIFIC CREDIBILITY STRIP */}
