@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import GeoResilienceDashboard from '../components/GeoResilienceDashboard';
 import SpaceEarthHero from '../components/SpaceEarthHero';
 import SignalStoryModal from '../components/SignalStoryModal';
 import SouthAsiaOverviewMap from '../components/SouthAsiaOverviewMap';
@@ -74,49 +75,15 @@ export default function Home({ setActiveTab, setSelectedRegionId }) {
     },
   ];
 
-  const previewData = {
-    rainfall: {
-      title: 'Monsoon Precipitation Intensity',
-      unit: 'mm / season',
-      historic: '1,420 mm',
-      recent: '1,585 mm',
-      change: '+11.6%',
-      trend: 'Increasing (p < 0.05)',
-      desc: 'Sustained upward trend in high-intensity rainfall events across the Bengal delta and lower Himalayas.',
-      color: '#55D6FF',
-    },
-    temp: {
-      title: 'Land Surface Temperature (LST)',
-      unit: '°C Anomaly',
-      historic: '27.4°C',
-      recent: '28.3°C',
-      change: '+0.9°C',
-      trend: 'Statistically Significant Warming',
-      desc: 'Consistent positive temperature departures observed across central agricultural plains and river basins.',
-      color: '#FF647C',
-    },
-    soil: {
-      title: 'Root-Zone Soil Saturation',
-      unit: 'm³ / m³',
-      historic: '0.34 m³/m³',
-      recent: '0.41 m³/m³',
-      change: '+20.5%',
-      trend: 'Elevated Antecedent Moisture',
-      desc: 'High antecedent moisture reduces water absorption capacity ahead of peak monsoonal precipitation.',
-      color: '#37D6A3',
-    },
-  };
-
   return (
     <div style={{ overflowX: 'hidden' }}>
-      {/* 1. HERO */}
-      <SpaceEarthHero
-        onExploreClick={() => setActiveTab('explore')}
-        onHowItWorksClick={() => {
-          const el = document.getElementById('editorial-story');
-          if (el) el.scrollIntoView({ behavior: 'smooth' });
+      {/* 1. PRIMARY RESILIENCE DASHBOARD (Exact layout matching user screenshot) */}
+      <GeoResilienceDashboard
+        selectedRegionId={homeMapRegion}
+        setSelectedRegionId={(rId) => {
+          setHomeMapRegion(rId);
+          setSelectedRegionId(rId);
         }}
-        setSelectedRegionId={setSelectedRegionId}
         setActiveTab={setActiveTab}
       />
 
