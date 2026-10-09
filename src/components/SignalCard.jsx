@@ -2,23 +2,29 @@ import React, { useState } from 'react';
 import { GET_TREND_SUMMARY, VARIABLES } from '../data/earthSignalsData';
 import { HelpCircle, ChevronDown, ChevronUp, CheckCircle, AlertTriangle, MinusCircle, ShieldCheck } from 'lucide-react';
 
-export default function SignalCard({ regionId, variableId }) {
-  const [showTechnical, setShowTechnical] = useState(false);
+export default function SignalCard({ regionId, variableId, showTechnicalExpanded = false }) {
+  const [internalTechnical, setInternalTechnical] = useState(false);
+  const showTechnical = showTechnicalExpanded || internalTechnical;
   const summary = GET_TREND_SUMMARY(regionId, variableId);
   const variableObj = VARIABLES.find(v => v.id === variableId) || VARIABLES[0];
 
   // Visual icon for status
   let StatusIcon = CheckCircle;
   let statusBadgeClass = 'badge-cyan';
-  if (summary.statusType === 'increasing') {
-    StatusIcon = AlertTriangle;
-    statusBadgeClass = 'badge-amber';
-  } else if (summary.statusType === 'decreasing') {
-    StatusIcon = AlertTriangle;
-    statusBadgeClass = 'badge-red';
-  } else if (summary.statusType === 'neutral') {
+  let cleanDirectionLabel = summary.directionLabel;
+
+  if (!summary.isSignificant) {
     StatusIcon = MinusCircle;
     statusBadgeClass = 'badge-neutral';
+    cleanDirectionLabel = 'No statistically detectable trend';
+  } else if (summary.statusType === 'increasing' || summary.directionLabel.includes('Increasing') || summary.directionLabel.includes('wetter')) {
+    StatusIcon = AlertTriangle;
+    statusBadgeClass = 'badge-amber';
+    cleanDirectionLabel = 'Increasing';
+  } else if (summary.statusType === 'decreasing' || summary.directionLabel.includes('Decreasing') || summary.directionLabel.includes('drier') || summary.directionLabel.includes('Declining')) {
+    StatusIcon = AlertTriangle;
+    statusBadgeClass = 'badge-red';
+    cleanDirectionLabel = 'Decreasing';
   }
 
   return (
@@ -29,42 +35,42 @@ export default function SignalCard({ regionId, variableId }) {
           <span style={styles.variableSymbol}>{variableObj.symbol}</span>
           <div>
             <div style={styles.sectionLabel}>WHAT DID WE FIND?</div>
-            <h3 style={styles.title}>{variableObj.name} Signal Detected</h3>
+            <h3 style={styles.title}>{variableObj.name} Signal Analysis</h3>
           </div>
         </div>
         <div className={`badge ${statusBadgeClass}`}>
           <StatusIcon size={14} />
-          <span>{summary.directionLabel}</span>
+          <span>{cleanDirectionLabel}</span>
         </div>
       </div>
 
       {/* Metric Quick Grid */}
       <div style={styles.metricsGrid}>
         <div style={styles.metricBox}>
-          <div style={styles.metricLabel}>Direction</div>
-          <div style={{ ...styles.metricVal, color: summary.statusType === 'increasing' ? 'var(--color-amber)' : summary.statusType === 'decreasing' ? 'var(--color-red)' : 'var(--color-cyan)' }}>
-            {summary.directionLabel}
+          <div style={styles.metricLabel}>Evidence Status</div>
+          <div style={{ ...styles.metricVal, fontSize: '0.86rem', color: summary.isSignificant ? (cleanDirectionLabel === 'Increasing' ? 'var(--color-amber)' : 'var(--color-red)') : 'var(--text-muted)' }}>
+            {cleanDirectionLabel}
           </div>
         </div>
 
         <div style={styles.metricBox}>
           <div style={styles.metricLabel}>Rate of Change</div>
           <div style={styles.metricVal} className="mono">
-            {summary.rate}
+            {summary.howFastRate || summary.rate || '—'}
           </div>
         </div>
 
         <div style={styles.metricBox}>
           <div style={styles.metricLabel}>Statistical Confidence</div>
-          <div style={{ ...styles.metricVal, fontSize: '0.85rem' }}>
-            {summary.confidence}
+          <div style={{ ...styles.metricVal, fontSize: '0.85rem', color: summary.isSignificant ? 'var(--color-cyan)' : 'var(--text-muted)' }}>
+            {summary.isSignificant ? (summary.pValue || summary.confidence || 'p < 0.05') : 'p > 0.05 (Insignificant)'}
           </div>
         </div>
 
         <div style={styles.metricBox}>
           <div style={styles.metricLabel}>Observation Span</div>
           <div style={{ ...styles.metricVal, fontSize: '0.85rem' }}>
-            {summary.samplePeriod}
+            {summary.samplePeriod || '1981–2025 (44 Yrs)'}
           </div>
         </div>
       </div>
@@ -80,7 +86,7 @@ export default function SignalCard({ regionId, variableId }) {
       {/* 3. TECHNICAL EVIDENCE EXPANDABLE SECTION */}
       <div style={{ marginTop: '20px', borderTop: '1px solid var(--border-subtle)', paddingTop: '16px' }}>
         <button
-          onClick={() => setShowTechnical(!showTechnical)}
+          onClick={() => setInternalTechnical(!internalTechnical)}
           style={styles.technicalToggleBtn}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>

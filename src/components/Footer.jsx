@@ -30,11 +30,12 @@ export default function Footer({ setActiveTab }) {
             <h4 style={styles.colTitle}>Platform Sections</h4>
             <ul style={styles.linkList}>
               <li><button style={styles.linkBtn} onClick={() => setActiveTab('home')}>Home Overview</button></li>
-              <li><button style={styles.linkBtn} onClick={() => setActiveTab('explore')}>Explore Regional Trends</button></li>
+              <li><button style={styles.linkBtn} onClick={() => setActiveTab('explore')}>Signals & Trends Dashboard</button></li>
+              <li><button style={styles.linkBtn} onClick={() => setActiveTab('explorelive')}>Real-Time Telemetry Feed</button></li>
               <li><button style={styles.linkBtn} onClick={() => setActiveTab('historical')}>Historical Evidence Engine</button></li>
               <li><button style={styles.linkBtn} onClick={() => setActiveTab('casestudies')}>Detailed Case Studies</button></li>
               <li><button style={styles.linkBtn} onClick={() => setActiveTab('preparedness')}>Preparedness Center</button></li>
-              <li><button style={styles.linkBtn} onClick={() => setActiveTab('methodology')}>Analytical Pipeline</button></li>
+              <li><button style={styles.linkBtn} onClick={() => setActiveTab('methodology')}>Science & Methodology</button></li>
             </ul>
           </div>
 

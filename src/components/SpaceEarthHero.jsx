@@ -8,7 +8,7 @@ export default function SpaceEarthHero({ onExploreClick, onHowItWorksClick }) {
   const telemetryPins = [
     { id: 'bangladesh', name: 'Bangladesh Delta', tag: 'Precipitation & Soil Saturation', top: '48%', left: '56%' },
     { id: 'nepal', name: 'Nepal Himalaya', tag: 'Monsoon Slope Vulnerability', top: '38%', left: '52%' },
-    { id: 'india', name: 'India Central & North', tag: 'Thermal & Vegetation Shift', top: '50%', left: '42%' },
+    { id: 'india', name: 'India Subcontinent', tag: 'Thermal & Vegetation Shift', top: '50%', left: '42%' },
     { id: 'pakistan', name: 'Pakistan Indus Basin', tag: 'Hydro-Climatic Extremes', top: '42%', left: '33%' },
   ];
 
@@ -24,25 +24,20 @@ export default function SpaceEarthHero({ onExploreClick, onHowItWorksClick }) {
           {/* Eyebrow */}
           <div style={styles.eyebrowContainer}>
             <span style={styles.eyebrow}>
-              NASA SPACE APPS CHALLENGE · 2026
+              EARTH’S HIDDEN SIGNALS · NASA SPACE APPS 2026
             </span>
           </div>
 
-          {/* Main Heading */}
+          {/* Main Headline */}
           <h1 style={styles.mainHeading}>
-            Earth's Hidden
+            One Warming Planet.
             <br />
-            <span style={{ color: '#55D6FF' }}>Signals.</span>
+            <span style={{ color: '#55D6FF' }}>Different Regional Responses.</span>
           </h1>
 
-          {/* Supporting Headline */}
-          <p style={styles.supportingHeadline}>
-            “Every changing climate leaves a signal.”
-          </p>
-
-          {/* Description */}
+          {/* Supporting Text */}
           <p style={styles.description}>
-            We explore environmental changes across South Asia, compare recent observations with historical evidence, and turn scientific signals into clearer preparedness insights.
+            “Explore how temperature, rainfall, and other environmental signals are changing across South Asia. Discover historical trends, understand regional differences, and turn scientific evidence into smarter preparedness.”
           </p>
 
           {/* Buttons */}
@@ -51,9 +46,9 @@ export default function SpaceEarthHero({ onExploreClick, onHowItWorksClick }) {
               className="btn-primary"
               onClick={onExploreClick}
               style={styles.primaryBtn}
-              aria-label="Explore the Signals"
+              aria-label="Explore Environmental Signals"
             >
-              <span>Explore the Signals</span>
+              <span>Explore Environmental Signals</span>
               <ArrowRight size={16} />
             </button>
 
@@ -70,7 +65,7 @@ export default function SpaceEarthHero({ onExploreClick, onHowItWorksClick }) {
           {/* Preparedness Statement */}
           <div style={styles.trustStatement}>
             <span style={styles.trustDot} />
-            <span style={styles.trustText}>PREPAREDNESS, NOT PREDICTION.</span>
+            <span style={styles.trustText}>PREPAREDNESS, NOT PREDICTION · NASA EARTH OBSERVATIONS</span>
           </div>
         </div>
 

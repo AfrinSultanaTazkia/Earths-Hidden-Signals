@@ -1,21 +1,23 @@
 import React, { useState, useEffect } from 'react';
-import { Globe, ArrowRight, Menu, X } from 'lucide-react';
+import { Globe, ArrowRight, Menu, X, Satellite, Activity, ShieldCheck, BookOpen, Layers, BarChart2 } from 'lucide-react';
 
 export default function Navbar({ activeTab, setActiveTab }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 30);
+    const handleScroll = () => setScrolled(window.scrollY > 20);
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   const navItems = [
     { id: 'home', label: 'Home' },
-    { id: 'explore', label: 'Explore' },
-    { id: 'historical', label: 'Evidence' },
+    { id: 'explore', label: 'Signals Dashboard' },
+    { id: 'explorelive', label: 'Live Telemetry', badge: 'LIVE' },
+    { id: 'historical', label: 'Historical Evidence' },
     { id: 'casestudies', label: 'Case Studies' },
+    { id: 'preparedness', label: 'Preparedness' },
     { id: 'methodology', label: 'Methodology' },
   ];
 
@@ -34,13 +36,13 @@ export default function Navbar({ activeTab, setActiveTab }) {
         top: 0,
         zIndex: 1000,
         background: scrolled || !isHome
-          ? 'rgba(5, 8, 22, 0.88)'
-          : 'rgba(5, 8, 22, 0.4)',
+          ? 'rgba(5, 8, 22, 0.92)'
+          : 'rgba(5, 8, 22, 0.65)',
         backdropFilter: 'blur(16px)',
         WebkitBackdropFilter: 'blur(16px)',
         borderBottom: scrolled
-          ? '1px solid rgba(85, 214, 255, 0.12)'
-          : '1px solid rgba(255, 255, 255, 0.05)',
+          ? '1px solid rgba(85, 214, 255, 0.16)'
+          : '1px solid rgba(255, 255, 255, 0.06)',
         transition: 'all 0.3s ease',
       }}
       role="banner"
@@ -51,7 +53,7 @@ export default function Navbar({ activeTab, setActiveTab }) {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          height: '68px',
+          height: '70px',
         }}
       >
         {/* Brand */}
@@ -63,9 +65,12 @@ export default function Navbar({ activeTab, setActiveTab }) {
           <div style={styles.logoIcon}>
             <Globe size={18} color="#55D6FF" />
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span style={styles.brandTitle}>Earth's Hidden Signals</span>
-            <span style={styles.brandBadge}>2026</span>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', textAlign: 'left' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span style={styles.brandTitle}>Earth's Hidden Signals</span>
+              <span style={styles.brandBadge}>NASA APPS</span>
+            </div>
+            <span style={styles.brandSubtitle}>South Asia Environmental Intelligence</span>
           </div>
         </button>
 
@@ -83,21 +88,28 @@ export default function Navbar({ activeTab, setActiveTab }) {
                   ...(isActive ? styles.navLinkActive : {}),
                 }}
               >
-                {item.label}
+                <span>{item.label}</span>
+                {item.badge && (
+                  <span style={styles.liveNavBadge}>
+                    <span style={styles.livePulseDot} />
+                    {item.badge}
+                  </span>
+                )}
+                {isActive && <div style={styles.navActiveBar} />}
               </button>
             );
           })}
         </nav>
 
         {/* CTA */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           <button
             className="btn-primary"
             onClick={() => handleNavClick('explore')}
-            style={{ padding: '8px 20px', fontSize: '0.85rem' }}
+            style={{ padding: '9px 18px', fontSize: '0.84rem' }}
             aria-label="Explore Environmental Intelligence Dashboard"
           >
-            <span>Explore Dashboard</span>
+            <span>Explore Signals</span>
             <ArrowRight size={14} />
           </button>
 
@@ -127,17 +139,25 @@ export default function Navbar({ activeTab, setActiveTab }) {
                   ...(isActive ? styles.mobileNavLinkActive : {}),
                 }}
               >
-                {item.label}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span>{item.label}</span>
+                  {item.badge && (
+                    <span style={styles.liveNavBadge}>
+                      {item.badge}
+                    </span>
+                  )}
+                </div>
+                {isActive && <span style={{ color: '#55D6FF', fontSize: '0.8rem' }}>●</span>}
               </button>
             );
           })}
-          <div style={{ marginTop: '12px', paddingTop: '12px', borderTop: '1px solid rgba(38,54,75,0.6)' }}>
+          <div style={{ marginTop: '14px', paddingTop: '14px', borderTop: '1px solid rgba(38,54,75,0.6)' }}>
             <button
               className="btn-primary"
               onClick={() => handleNavClick('explore')}
               style={{ width: '100%', justifyContent: 'center' }}
             >
-              <span>Explore Dashboard</span>
+              <span>Explore Environmental Signals</span>
               <ArrowRight size={15} />
             </button>
           </div>
@@ -156,55 +176,99 @@ const styles = {
     background: 'transparent',
     border: 'none',
     padding: 0,
+    textDecoration: 'none',
   },
   logoIcon: {
-    width: '32px',
-    height: '32px',
-    borderRadius: '8px',
-    background: 'rgba(85, 214, 255, 0.08)',
-    border: '1px solid rgba(85, 214, 255, 0.25)',
+    width: '36px',
+    height: '36px',
+    borderRadius: '10px',
+    background: 'linear-gradient(135deg, rgba(85, 214, 255, 0.15) 0%, rgba(55, 214, 163, 0.1) 100%)',
+    border: '1px solid rgba(85, 214, 255, 0.35)',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     flexShrink: 0,
+    boxShadow: '0 0 16px rgba(85, 214, 255, 0.2)',
   },
   brandTitle: {
-    fontFamily: 'Outfit, sans-serif',
-    fontSize: '0.96rem',
-    fontWeight: '700',
+    fontFamily: "'Outfit', sans-serif",
+    fontSize: '0.98rem',
+    fontWeight: '800',
     color: '#FFFFFF',
     letterSpacing: '-0.02em',
+    lineHeight: 1.2,
+  },
+  brandSubtitle: {
+    fontSize: '0.66rem',
+    color: '#7E8EA6',
+    fontFamily: "'Inter', sans-serif",
+    fontWeight: '500',
+    letterSpacing: '0.02em',
   },
   brandBadge: {
-    fontSize: '0.65rem',
-    fontWeight: '600',
+    fontSize: '0.62rem',
+    fontWeight: '700',
     color: '#55D6FF',
     fontFamily: "'JetBrains Mono', monospace",
-    background: 'rgba(85, 214, 255, 0.08)',
-    padding: '2px 6px',
+    background: 'rgba(85, 214, 255, 0.1)',
+    padding: '1px 5px',
     borderRadius: '4px',
-    border: '1px solid rgba(85, 214, 255, 0.2)',
+    border: '1px solid rgba(85, 214, 255, 0.25)',
+    letterSpacing: '0.04em',
   },
   desktopNav: {
     display: 'flex',
     alignItems: 'center',
-    gap: '24px',
+    gap: '18px',
   },
   navLink: {
     background: 'transparent',
     border: 'none',
     color: '#A6B4C8',
-    fontSize: '0.88rem',
+    fontSize: '0.84rem',
     fontWeight: '500',
-    padding: '6px 0',
+    padding: '8px 2px',
     cursor: 'pointer',
     transition: 'all 0.2s ease',
-    fontFamily: 'Inter, sans-serif',
+    fontFamily: "'Inter', sans-serif",
     position: 'relative',
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: '6px',
   },
   navLinkActive: {
     color: '#FFFFFF',
-    fontWeight: '600',
+    fontWeight: '700',
+  },
+  navActiveBar: {
+    position: 'absolute',
+    bottom: '-4px',
+    left: '0',
+    right: '0',
+    height: '2px',
+    background: 'linear-gradient(90deg, #55D6FF, #37D6A3)',
+    borderRadius: '2px',
+    boxShadow: '0 0 8px rgba(85, 214, 255, 0.6)',
+  },
+  liveNavBadge: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: '4px',
+    background: 'rgba(55, 214, 163, 0.15)',
+    color: '#37D6A3',
+    border: '1px solid rgba(55, 214, 163, 0.35)',
+    borderRadius: '4px',
+    fontSize: '0.6rem',
+    fontWeight: '800',
+    padding: '1px 5px',
+    fontFamily: "'JetBrains Mono', monospace",
+  },
+  livePulseDot: {
+    width: '4px',
+    height: '4px',
+    borderRadius: '50%',
+    background: '#37D6A3',
+    boxShadow: '0 0 4px #37D6A3',
   },
   mobileMenuToggle: {
     display: 'none',
@@ -212,29 +276,35 @@ const styles = {
     border: 'none',
     color: '#F4F7FB',
     cursor: 'pointer',
-    padding: '4px',
+    padding: '6px',
   },
   mobileDrawer: {
-    background: '#0D1527',
-    borderBottom: '1px solid rgba(38,54,75,0.8)',
+    background: '#080D1B',
+    borderBottom: '1px solid rgba(85, 214, 255, 0.15)',
     padding: '16px 20px',
     display: 'flex',
     flexDirection: 'column',
-    gap: '6px',
+    gap: '8px',
   },
   mobileNavLink: {
     background: 'transparent',
     border: 'none',
     color: '#A6B4C8',
-    fontSize: '0.95rem',
+    fontSize: '0.92rem',
     fontWeight: '500',
-    padding: '10px 0',
+    padding: '10px 8px',
     cursor: 'pointer',
     textAlign: 'left',
-    fontFamily: 'Inter, sans-serif',
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    fontFamily: "'Inter', sans-serif",
+    borderRadius: '6px',
+    transition: 'background 0.2s ease',
   },
   mobileNavLinkActive: {
     color: '#55D6FF',
-    fontWeight: '600',
+    fontWeight: '700',
+    background: 'rgba(85, 214, 255, 0.08)',
   },
 };

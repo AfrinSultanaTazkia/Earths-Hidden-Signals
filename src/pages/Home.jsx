@@ -463,7 +463,7 @@ export default function Home({ setActiveTab, setSelectedRegionId }) {
         </div>
       </section>
 
-      {/* 6. HOW THE SYSTEM WORKS */}
+      {/* 6. HOW THE SYSTEM WORKS (4-STAGE PIPELINE) */}
       <section style={styles.howItWorksSection}>
         <div className="container">
           <div style={styles.sectionHeader}>
@@ -472,35 +472,42 @@ export default function Home({ setActiveTab, setSelectedRegionId }) {
               Scientific Pipeline
             </span>
             <h2 style={styles.sectionTitle}>
-              From Earth Data to Preparedness Signals
+              How Earth’s Hidden Signals Works
             </h2>
             <p style={styles.sectionSubtitle}>
-              A three-stage transparent framework converting multi-mission satellite telemetry into understandable regional preparedness intelligence.
+              A transparent 4-stage framework converting multi-mission satellite telemetry into accessible, understandable, evidence-based preparedness intelligence.
             </p>
           </div>
 
-          <div style={styles.processGrid}>
+          <div style={styles.processGridFour}>
             {[
               {
                 step: '01',
-                tag: 'OBSERVE',
-                title: 'Multi-Mission Earth Observation',
-                desc: 'Ingesting verified NASA and international Earth observation datasets across temperature, rainfall, soil moisture, and vegetative indices spanning 44 years of observations.',
+                tag: 'DATA',
+                title: 'NASA / Scientific Data',
+                desc: 'Ingesting multi-decadal satellite observations from NASA GISTEMP, GPCP/IMERG, SMAP L4, and MODIS NDVI spanning 44 continuous years (1981–2025).',
                 color: '#55D6FF',
               },
               {
                 step: '02',
-                tag: 'COMPARE',
-                title: 'Automated Baseline & Trend Analysis',
-                desc: 'Comparing current observations against 10-year historical references using Mann–Kendall monotonic tests and Sen\'s slope estimation to assess statistical significance.',
+                tag: 'TRENDS',
+                title: 'Trend Analysis',
+                desc: 'Applying non-parametric Mann–Kendall monotonic tests and Sen’s slope rate estimators to identify genuine long-term trajectories versus short-term weather noise.',
                 color: '#37D6A3',
               },
               {
                 step: '03',
-                tag: 'PREPARE',
-                title: 'Actionable Preparedness Intelligence',
-                desc: 'Translating empirical signals into practical monitoring priorities and community actions—helping society prepare smarter without false predictions.',
+                tag: 'REGIONS',
+                title: 'Regional Interpretation',
+                desc: 'Connecting measured atmospheric and hydrological trends to specific regional topographies, river basins, slope geologies, and ecosystems across South Asia.',
                 color: '#FFBF69',
+              },
+              {
+                step: '04',
+                tag: 'ACTION',
+                title: 'Evidence-Based Preparedness',
+                desc: 'Translating verified environmental findings into actionable monitoring priorities for communities, agriculture, health workers, and emergency responders.',
+                color: '#818CF8',
               },
             ].map((stage, i) => (
               <div
@@ -508,7 +515,7 @@ export default function Home({ setActiveTab, setSelectedRegionId }) {
                 style={{ ...styles.processCard, borderTopColor: stage.color }}
                 className="glass-panel"
               >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '14px' }}>
                   <div
                     style={{
                       ...styles.stepNumber,
@@ -528,7 +535,7 @@ export default function Home({ setActiveTab, setSelectedRegionId }) {
                       fontFamily: "'JetBrains Mono', monospace",
                     }}
                   >
-                    STAGE {stage.tag}
+                    {stage.tag}
                   </span>
                 </div>
                 <h3 style={styles.stageTitle}>{stage.title}</h3>
@@ -1016,8 +1023,13 @@ const styles = {
     gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
     gap: '24px',
   },
+  processGridFour: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+    gap: '20px',
+  },
   processCard: {
-    padding: '32px',
+    padding: '28px',
     borderRadius: '16px',
     borderTop: '3px solid',
   },
