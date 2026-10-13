@@ -77,7 +77,7 @@ export default function SouthAsiaOverviewMap({ selectedRegionId, onSelectRegion,
   const zoomLevel = currentRegion.zoom || 5;
 
   const tileUrls = {
-    dark: "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",
+    dark: "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}",
     satellite: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
     osm: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
   };
@@ -178,10 +178,17 @@ export default function SouthAsiaOverviewMap({ selectedRegionId, onSelectRegion,
             const isSelected = region.id === selectedRegionId;
             const summary = GET_TREND_SUMMARY(region.id, variableId);
 
-            let nodeColor = '#55D6FF';
-            if (summary.statusType === 'increasing') nodeColor = '#FFBF69';
-            if (summary.statusType === 'decreasing') nodeColor = '#FF647C';
-            if (summary.statusType === 'neutral') nodeColor = '#37D6A3';
+            // statusType is now correctly returned from GET_TREND_SUMMARY
+            // Colors match scientific significance palette:
+            //   significant increasing → teal/green
+            //   significant decreasing → amber/orange
+            //   not significant / neutral → grey
+            //   inconclusive → purple
+            let nodeColor = '#718096'; // default: no significant trend (grey)
+            if (!summary.isSignificant && summary.statusType === 'inconclusive') nodeColor = '#7C6FA6'; // insufficient data
+            else if (!summary.isSignificant) nodeColor = '#718096'; // no significant trend
+            else if (summary.statusType === 'increasing') nodeColor = '#16866B'; // significant increasing
+            else if (summary.statusType === 'decreasing') nodeColor = '#D97732'; // significant decreasing
 
             const customIcon = createPulseIcon(nodeColor, isSelected, region.flag, region.name);
 
@@ -217,7 +224,13 @@ export default function SouthAsiaOverviewMap({ selectedRegionId, onSelectRegion,
                         <span style={{ fontSize: '1rem', fontWeight: '800', color: '#FFF' }}>
                           {region.flag} {region.name}
                         </span>
-                        <span className={`badge ${summary.statusType === 'increasing' ? 'badge-amber' : summary.statusType === 'decreasing' ? 'badge-red' : 'badge-green'}`} style={{ fontSize: '0.62rem' }}>
+                        <span style={{
+                          display: 'inline-block', padding: '2px 8px', borderRadius: '999px',
+                          fontSize: '0.62rem', fontWeight: '700', fontFamily: 'monospace',
+                          background: !summary.isSignificant ? 'rgba(113,128,150,0.2)' : summary.statusType === 'increasing' ? 'rgba(22,134,107,0.2)' : 'rgba(217,119,50,0.2)',
+                          color: !summary.isSignificant ? '#718096' : summary.statusType === 'increasing' ? '#16866B' : '#D97732',
+                          border: `1px solid ${nodeColor}40`
+                        }}>
                           {summary.directionLabel}
                         </span>
                       </div>
@@ -257,16 +270,20 @@ export default function SouthAsiaOverviewMap({ selectedRegionId, onSelectRegion,
           </div>
           <div style={styles.legendGrid}>
             <div style={styles.legendItem}>
-              <span style={{ ...styles.legendDot, background: '#FFBF69' }} />
-              <span>Increasing Trend</span>
+              <span style={{ ...styles.legendDot, background: '#16866B' }} />
+              <span>Significant Increasing (p &lt; 0.05)</span>
             </div>
             <div style={styles.legendItem}>
-              <span style={{ ...styles.legendDot, background: '#FF647C' }} />
-              <span>Decreasing Trend</span>
+              <span style={{ ...styles.legendDot, background: '#D97732' }} />
+              <span>Significant Decreasing (p &lt; 0.05)</span>
             </div>
             <div style={styles.legendItem}>
-              <span style={{ ...styles.legendDot, background: '#37D6A3' }} />
-              <span>No Significant Trend</span>
+              <span style={{ ...styles.legendDot, background: '#718096' }} />
+              <span>No Significant Trend (p ≥ 0.05)</span>
+            </div>
+            <div style={styles.legendItem}>
+              <span style={{ ...styles.legendDot, background: '#7C6FA6' }} />
+              <span>Inconclusive / Insufficient Data</span>
             </div>
           </div>
         </div>

@@ -75,6 +75,39 @@ export default function Home({ setActiveTab, setSelectedRegionId }) {
     },
   ];
 
+  // Preview data for the homepage dashboard demonstration section
+  // These are illustrative values for the demo panel — they show the structure,
+  // not live API results. Actual analysis uses GET_TREND_SUMMARY().
+  const previewData = {
+    rainfall: {
+      title: 'Annual Precipitation (Bangladesh)',
+      desc: 'Rainfall accumulation over Bangladesh, 2001–2025 modeled regional estimates (NASA GPCP v3.2 basis).',
+      historic: '2,150 mm',
+      recent: '2,273 mm',
+      change: '+123 mm (+5.7%)',
+      trend: '📈 Significant Increasing (p = 0.0018)',
+      color: '#16866B'
+    },
+    temp: {
+      title: 'Land Surface Temperature (Bangladesh)',
+      desc: 'Surface temperature anomaly relative to 1981–2010 baseline (NASA GISTEMP v4 basis).',
+      historic: '25.8 °C',
+      recent: '26.5 °C',
+      change: '+0.7 °C',
+      trend: '📈 Significant Increasing (p = 0.0006)',
+      color: '#D97732'
+    },
+    soil: {
+      title: 'Root-Zone Soil Moisture (Bangladesh)',
+      desc: 'Volumetric water content from NASA SMAP L4 (2015–2025 only — shorter record).',
+      historic: '0.380 m³/m³',
+      recent: '0.387 m³/m³',
+      change: '+0.007 m³/m³',
+      trend: '📈 Significant Increasing (p = 0.014)',
+      color: '#16866B'
+    }
+  };
+
   return (
     <div style={{ overflowX: 'hidden' }}>
       {/* 1. PRIMARY RESILIENCE DASHBOARD (Exact layout matching user screenshot) */}
@@ -131,18 +164,18 @@ export default function Home({ setActiveTab, setSelectedRegionId }) {
                 <div style={{ width: '12px', height: '12px', borderRadius: '50%', background: '#FF647C', boxShadow: '0 0 10px #FF647C' }} />
                 <div>
                   <div style={{ fontSize: '0.72rem', color: '#FF647C', fontWeight: '800', letterSpacing: '0.08em' }}>CORE DRIVER</div>
-                  <h3 style={{ fontSize: '1.25rem', color: '#FFF', margin: 0 }}>Global Warming & Land Surface Temperature Shift</h3>
+                  <h3 style={{ fontSize: '1.25rem', color: '#0C2340', margin: 0 }}>Global Warming & Land Surface Temperature Shift</h3>
                 </div>
               </div>
-              <div style={{ fontSize: '0.78rem', color: '#A6B4C8', fontFamily: "'JetBrains Mono', monospace" }}>
+              <div style={{ fontSize: '0.78rem', color: '#4A5568', fontFamily: "'JetBrains Mono', monospace" }}>
                 NASA GISTEMP & MODIS LST (20+ Yrs)
               </div>
             </div>
 
             <div style={styles.detectiveFlowDivider}>
-              <div style={{ height: '2px', background: 'linear-gradient(90deg, #55D6FF, #37D6A3, #FFBF69, #818CF8)', width: '100%' }} />
+              <div style={{ height: '2px', background: 'linear-gradient(90deg, #0899C4, #1B8A62, #D97706, #6B46C1)', width: '100%' }} />
               <div style={{ textAlign: 'center', marginTop: '-12px' }}>
-                <span style={{ background: '#0D1527', border: '1px solid rgba(85,214,255,0.4)', padding: '2px 14px', borderRadius: '12px', fontSize: '0.7rem', color: '#55D6FF', fontWeight: '700' }}>
+                <span style={{ background: '#FFFFFF', border: '1px solid #D8E2EF', padding: '2px 14px', borderRadius: '12px', fontSize: '0.7rem', color: '#1B8A62', fontWeight: '700' }}>
                   Regional Environmental Response
                 </span>
               </div>
@@ -155,20 +188,20 @@ export default function Home({ setActiveTab, setSelectedRegionId }) {
                   <span style={{ fontSize: '1.4rem' }}>🇧🇩</span>
                   <span className="badge badge-cyan" style={{ fontSize: '0.62rem' }}>DELTA FLOODPLAIN</span>
                 </div>
-                <h4 style={{ fontSize: '1.05rem', color: '#FFF', marginBottom: '6px' }}>Bangladesh Flood Condition</h4>
+                <h4 style={{ fontSize: '1.05rem', color: '#0C2340', marginBottom: '6px' }}>Bangladesh Flood Condition</h4>
                 <div style={styles.flowChain}>
                   <div style={styles.flowChainStep}>Extreme Rainfall Surges</div>
                   <div style={styles.flowChainArrow}>↓</div>
                   <div style={styles.flowChainStep}>Soil Saturation & High Runoff</div>
                   <div style={styles.flowChainArrow}>↓</div>
-                  <div style={{ ...styles.flowChainStep, color: '#55D6FF', fontWeight: '700' }}>River Basin Inundation Pressure</div>
+                  <div style={{ ...styles.flowChainStep, color: '#0899C4', fontWeight: '700' }}>River Basin Inundation Pressure</div>
                 </div>
                 <p style={styles.detectiveDesc}>
                   Heavy upstream precipitation coupled with deltaic soil saturation increases surface runoff impedance across low-lying floodplains.
                 </p>
                 <button
                   onClick={() => handleExploreRegion('bangladesh')}
-                  style={{ ...styles.detectiveBtn, borderColor: '#55D6FF', color: '#55D6FF' }}
+                  style={{ ...styles.detectiveBtn, borderColor: '#0899C4', color: '#0899C4' }}
                 >
                   Inspect Bangladesh Signals →
                 </button>
@@ -180,20 +213,20 @@ export default function Home({ setActiveTab, setSelectedRegionId }) {
                   <span style={{ fontSize: '1.4rem' }}>🇳🇵</span>
                   <span className="badge badge-green" style={{ fontSize: '0.62rem' }}>HIMALAYAN SLOPES</span>
                 </div>
-                <h4 style={{ fontSize: '1.05rem', color: '#FFF', marginBottom: '6px' }}>Nepal Landslide Condition</h4>
+                <h4 style={{ fontSize: '1.05rem', color: '#0C2340', marginBottom: '6px' }}>Nepal Landslide Condition</h4>
                 <div style={styles.flowChain}>
                   <div style={styles.flowChainStep}>Concentrated Rainfall Spikes</div>
                   <div style={styles.flowChainArrow}>↓</div>
                   <div style={styles.flowChainStep}>Slope Soil Pore Saturation</div>
                   <div style={styles.flowChainArrow}>↓</div>
-                  <div style={{ ...styles.flowChainStep, color: '#37D6A3', fontWeight: '700' }}>Mountain Slope Shear Instability</div>
+                  <div style={{ ...styles.flowChainStep, color: '#1B8A62', fontWeight: '700' }}>Mountain Slope Shear Instability</div>
                 </div>
                 <p style={styles.detectiveDesc}>
                   Intense short-duration rainfall on steep mountain slopes accelerates soil shear stress, triggering localized slope movement.
                 </p>
                 <button
                   onClick={() => handleExploreRegion('nepal')}
-                  style={{ ...styles.detectiveBtn, borderColor: '#37D6A3', color: '#37D6A3' }}
+                  style={{ ...styles.detectiveBtn, borderColor: '#1B8A62', color: '#1B8A62' }}
                 >
                   Inspect Nepal Signals →
                 </button>
@@ -205,20 +238,20 @@ export default function Home({ setActiveTab, setSelectedRegionId }) {
                   <span style={{ fontSize: '1.4rem' }}>🇮🇳</span>
                   <span className="badge badge-amber" style={{ fontSize: '0.62rem' }}>FORESTS & BIOMES</span>
                 </div>
-                <h4 style={{ fontSize: '1.05rem', color: '#FFF', marginBottom: '6px' }}>India Wildfire Condition</h4>
+                <h4 style={{ fontSize: '1.05rem', color: '#0C2340', marginBottom: '6px' }}>India Wildfire Condition</h4>
                 <div style={styles.flowChain}>
                   <div style={styles.flowChainStep}>Dryer Pre-Monsoon Heat</div>
                   <div style={styles.flowChainArrow}>↓</div>
                   <div style={styles.flowChainStep}>Low Soil Moisture + Vegetation Stress</div>
                   <div style={styles.flowChainArrow}>↓</div>
-                  <div style={{ ...styles.flowChainStep, color: '#FFBF69', fontWeight: '700' }}>Dry Biomass Combustibility</div>
+                  <div style={{ ...styles.flowChainStep, color: '#C05621', fontWeight: '700' }}>Dry Biomass Combustibility</div>
                 </div>
                 <p style={styles.detectiveDesc}>
                   Extended pre-monsoon heating and declining root-zone moisture amplify dry matter combustibility in tropical forest tracts.
                 </p>
                 <button
                   onClick={() => handleExploreRegion('india')}
-                  style={{ ...styles.detectiveBtn, borderColor: '#FFBF69', color: '#FFBF69' }}
+                  style={{ ...styles.detectiveBtn, borderColor: '#C05621', color: '#C05621' }}
                 >
                   Inspect India Signals →
                 </button>
@@ -228,9 +261,9 @@ export default function Home({ setActiveTab, setSelectedRegionId }) {
               <div style={{ ...styles.detectiveCard, borderTopColor: '#818CF8' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
                   <span style={{ fontSize: '1.4rem' }}>🇵🇰</span>
-                  <span className="badge badge-neutral" style={{ fontSize: '0.62rem', color: '#818CF8' }}>INDUS RIVER BASIN</span>
+                  <span className="badge badge-neutral" style={{ fontSize: '0.62rem', color: '#6B46C1' }}>INDUS RIVER BASIN</span>
                 </div>
-                <h4 style={{ fontSize: '1.05rem', color: '#FFF', marginBottom: '6px' }}>Pakistan Flood & Droughts</h4>
+                <h4 style={{ fontSize: '1.05rem', color: '#0C2340', marginBottom: '6px' }}>Pakistan Flood & Droughts</h4>
                 <div style={styles.flowChain}>
                   <div style={styles.flowChainStep}>High Thermal Variance</div>
                   <div style={styles.flowChainArrow}>↓</div>
@@ -807,10 +840,10 @@ export default function Home({ setActiveTab, setSelectedRegionId }) {
 
 const styles = {
   credibilityStrip: {
-    background: 'rgba(8, 13, 27, 0.95)',
-    borderTop: '1px solid rgba(85, 214, 255, 0.12)',
-    borderBottom: '1px solid rgba(38, 54, 75, 0.6)',
-    padding: '16px 0',
+    background: '#0C2340',
+    borderTop: '1px solid rgba(74, 222, 128, 0.15)',
+    borderBottom: '1px solid rgba(0,0,0,0.2)',
+    padding: '14px 0',
   },
   stripContainer: {
     display: 'flex',
@@ -827,39 +860,40 @@ const styles = {
   stripText: {
     fontSize: '0.74rem',
     fontWeight: '600',
-    color: '#A6B4C8',
+    color: 'rgba(255,255,255,0.6)',
     fontFamily: "'JetBrains Mono', monospace",
     letterSpacing: '0.04em',
   },
   editorialSection: {
-    padding: '90px 0 70px 0',
-    background: '#050816',
+    padding: '60px 0 50px 0',
+    background: '#F5F7FA',
   },
   sectionHeader: {
     textAlign: 'center',
     maxWidth: '740px',
-    margin: '0 auto 50px auto',
+    margin: '0 auto 40px auto',
   },
   sectionTitle: {
     fontFamily: 'Outfit, sans-serif',
-    fontSize: 'clamp(2rem, 3.8vw, 2.8rem)',
+    fontSize: 'clamp(1.6rem, 3vw, 2.2rem)',
     fontWeight: '800',
-    color: '#FFFFFF',
-    letterSpacing: '-0.03em',
-    lineHeight: 1.15,
-    marginBottom: '14px',
+    color: '#0C2340',
+    letterSpacing: '-0.02em',
+    lineHeight: 1.2,
+    marginBottom: '12px',
   },
   sectionSubtitle: {
-    fontSize: '0.98rem',
-    color: '#A6B4C8',
+    fontSize: '0.94rem',
+    color: '#4A5568',
     lineHeight: 1.65,
   },
   detectiveFlowContainer: {
-    padding: '28px',
-    borderRadius: '16px',
-    marginBottom: '36px',
-    background: 'rgba(13, 21, 39, 0.85)',
-    border: '1px solid rgba(85, 214, 255, 0.25)',
+    padding: '24px',
+    borderRadius: '12px',
+    marginBottom: '28px',
+    background: '#FFFFFF',
+    border: '1px solid #D8E2EF',
+    boxShadow: '0 2px 12px rgba(12, 35, 64, 0.08)',
   },
   detectiveFlowHeader: {
     display: 'flex',
@@ -879,23 +913,24 @@ const styles = {
     gap: '16px',
   },
   detectiveCard: {
-    background: 'rgba(5, 8, 22, 0.65)',
-    border: '1px solid rgba(255, 255, 255, 0.08)',
+    background: '#FFFFFF',
+    border: '1px solid #D8E2EF',
     borderTopWidth: '3px',
-    borderRadius: '12px',
-    padding: '18px',
+    borderRadius: '10px',
+    padding: '16px',
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'space-between',
+    boxShadow: '0 2px 8px rgba(12, 35, 64, 0.07)',
   },
   flowChain: {
-    background: 'rgba(255, 255, 255, 0.02)',
-    border: '1px solid rgba(255, 255, 255, 0.06)',
-    borderRadius: '8px',
-    padding: '10px',
-    margin: '10px 0 12px 0',
-    fontSize: '0.74rem',
-    color: '#A6B4C8',
+    background: '#F5F7FA',
+    border: '1px solid #E2E8F0',
+    borderRadius: '7px',
+    padding: '8px 10px',
+    margin: '8px 0 10px 0',
+    fontSize: '0.72rem',
+    color: '#4A5568',
     textAlign: 'center',
   },
   flowChainStep: {
@@ -903,26 +938,26 @@ const styles = {
   },
   flowChainArrow: {
     fontSize: '0.7rem',
-    color: '#55D6FF',
+    color: '#1B8A62',
     lineHeight: 1,
     margin: '1px 0',
   },
   detectiveDesc: {
-    fontSize: '0.8rem',
-    color: '#7E8EA6',
-    lineHeight: 1.5,
-    marginBottom: '14px',
+    fontSize: '0.78rem',
+    color: '#4A5568',
+    lineHeight: 1.55,
+    marginBottom: '12px',
   },
   detectiveBtn: {
     width: '100%',
     background: 'transparent',
     border: '1px solid',
     borderRadius: '6px',
-    padding: '7px 10px',
-    fontSize: '0.75rem',
+    padding: '6px 10px',
+    fontSize: '0.73rem',
     fontWeight: '700',
     cursor: 'pointer',
-    transition: 'all 0.15s ease',
+    transition: 'all 0.12s ease',
   },
   editorialGrid: {
     display: 'grid',
@@ -931,8 +966,8 @@ const styles = {
   },
   featureStoryCard: {
     gridRow: 'span 2',
-    padding: '36px',
-    borderRadius: '16px',
+    padding: '28px',
+    borderRadius: '12px',
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'space-between',
@@ -940,29 +975,29 @@ const styles = {
   featurePill: {
     fontSize: '0.68rem',
     fontWeight: '800',
-    color: '#55D6FF',
+    color: '#0D8A6A',
     fontFamily: "'JetBrains Mono', monospace",
     letterSpacing: '0.08em',
   },
   featureHeadline: {
-    fontSize: '1.45rem',
+    fontSize: '1.2rem',
     fontWeight: '800',
-    color: '#FFFFFF',
+    color: '#0C2340',
     lineHeight: 1.3,
-    marginBottom: '14px',
+    marginBottom: '12px',
   },
   featureText: {
-    fontSize: '0.94rem',
-    color: '#A6B4C8',
+    fontSize: '0.88rem',
+    color: '#4A5568',
     lineHeight: 1.7,
-    marginBottom: '28px',
+    marginBottom: '24px',
   },
   metricsRow: {
     display: 'grid',
     gridTemplateColumns: 'repeat(3, 1fr)',
     gap: '14px',
-    paddingTop: '20px',
-    borderTop: '1px solid rgba(38, 54, 75, 0.6)',
+    paddingTop: '16px',
+    borderTop: '1px solid #E2E8F0',
   },
   metricBlock: {
     display: 'flex',
@@ -970,32 +1005,32 @@ const styles = {
     gap: '4px',
   },
   metricLabel: {
-    fontSize: '0.68rem',
-    color: '#7E8EA6',
+    fontSize: '0.65rem',
+    color: '#718096',
     fontFamily: "'JetBrains Mono', monospace",
   },
   metricValue: {
-    fontSize: '0.95rem',
+    fontSize: '0.9rem',
     fontWeight: '700',
-    color: '#FFFFFF',
+    color: '#0C2340',
   },
   supportingCard: {
-    padding: '24px',
-    borderRadius: '16px',
+    padding: '20px',
+    borderRadius: '12px',
   },
   iconBox: {
     width: '28px',
     height: '28px',
     borderRadius: '6px',
-    background: 'rgba(255,100,124,0.1)',
-    border: '1px solid rgba(255,100,124,0.3)',
+    background: 'rgba(192,86,33,0.1)',
+    border: '1px solid rgba(192,86,33,0.3)',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
   },
   regionalSection: {
-    padding: '80px 0',
-    background: '#080D1B',
+    padding: '60px 0',
+    background: '#EEF2F7',
   },
   regionalGrid: {
     display: 'grid',

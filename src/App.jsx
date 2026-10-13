@@ -2,6 +2,37 @@ import React, { useState, useEffect } from 'react';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 
+// Error Boundary — shows the actual crash message on screen instead of blank page
+class ErrorBoundary extends React.Component {
+  constructor(props) { super(props); this.state = { hasError: false, error: null }; }
+  static getDerivedStateFromError(error) { return { hasError: true, error }; }
+  componentDidCatch(error, info) { console.error('App Crash:', error, info); }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div style={{ minHeight: '100vh', background: '#050816', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px', fontFamily: 'monospace' }}>
+          <div style={{ maxWidth: '800px', background: '#0D1527', border: '1px solid #FF647C', borderRadius: '12px', padding: '32px' }}>
+            <h2 style={{ color: '#FF647C', marginBottom: '16px' }}>⚠️ App Crash Detected</h2>
+            <p style={{ color: '#A6B4C8', marginBottom: '12px', fontSize: '0.9rem' }}>The following error caused a blank page:</p>
+            <pre style={{ color: '#55D6FF', background: '#050816', padding: '16px', borderRadius: '8px', overflowX: 'auto', fontSize: '0.8rem', whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
+              {this.state.error?.toString()}
+              {'\n\n'}
+              {this.state.error?.stack}
+            </pre>
+            <button
+              onClick={() => this.setState({ hasError: false, error: null })}
+              style={{ marginTop: '16px', padding: '10px 24px', background: '#55D6FF', color: '#050816', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: '700' }}
+            >
+              Try Again
+            </button>
+          </div>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
 // Pages
 import Home from './pages/Home';
 import ExploreTrends from './pages/ExploreTrends';
@@ -143,23 +174,25 @@ export default function App() {
   };
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', backgroundColor: 'var(--bg-space)' }}>
-      {/* Sticky Global Navigation */}
-      <Navbar
-        activeTab={activeTab}
-        setActiveTab={updateTab}
-      />
+    <ErrorBoundary>
+      <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', backgroundColor: 'var(--bg-space)' }}>
+        {/* Sticky Global Navigation */}
+        <Navbar
+          activeTab={activeTab}
+          setActiveTab={updateTab}
+        />
 
-      {/* Main Page View Container */}
-      <main style={{ flex: 1 }}>
-        {renderCurrentPage()}
-      </main>
+        {/* Main Page View Container */}
+        <main style={{ flex: 1 }}>
+          {renderCurrentPage()}
+        </main>
 
-      {/* Footer & NASA Data Attributions */}
-      <Footer
-        setActiveTab={updateTab}
-        setSelectedRegionId={updateRegion}
-      />
-    </div>
+        {/* Footer & NASA Data Attributions */}
+        <Footer
+          setActiveTab={updateTab}
+          setSelectedRegionId={updateRegion}
+        />
+      </div>
+    </ErrorBoundary>
   );
 }

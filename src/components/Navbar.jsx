@@ -1,24 +1,23 @@
 import React, { useState, useEffect } from 'react';
-import { Globe, ArrowRight, Menu, X, Satellite, Activity, ShieldCheck, BookOpen, Layers, BarChart2 } from 'lucide-react';
+import { Globe, Menu, X, Satellite, Activity, Wifi, AlertCircle } from 'lucide-react';
 
 export default function Navbar({ activeTab, setActiveTab }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
+  const [currentTime, setCurrentTime] = useState(new Date());
 
   useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 20);
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
+    const timer = setInterval(() => setCurrentTime(new Date()), 60000);
+    return () => clearInterval(timer);
   }, []);
 
   const navItems = [
-    { id: 'home', label: 'Home' },
-    { id: 'explore', label: 'Signals Dashboard' },
-    { id: 'explorelive', label: 'Live Telemetry', badge: 'LIVE' },
-    { id: 'historical', label: 'Historical Evidence' },
-    { id: 'casestudies', label: 'Case Studies' },
+    { id: 'home',         label: 'Home' },
+    { id: 'explore',      label: 'Signals Dashboard' },
+    { id: 'explorelive',  label: 'Live Telemetry', badge: 'LIVE' },
+    { id: 'historical',   label: 'Historical Evidence' },
+    { id: 'casestudies',  label: 'Case Studies' },
     { id: 'preparedness', label: 'Preparedness' },
-    { id: 'methodology', label: 'Methodology' },
+    { id: 'methodology',  label: 'Methodology' },
   ];
 
   const handleNavClick = (id) => {
@@ -27,107 +26,228 @@ export default function Navbar({ activeTab, setActiveTab }) {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const isHome = activeTab === 'home';
+  const fmtTime = currentTime.toLocaleTimeString('en-US', {
+    hour: '2-digit', minute: '2-digit', timeZone: 'UTC', hour12: false
+  });
 
   return (
-    <header
-      style={{
-        position: 'sticky',
-        top: 0,
-        zIndex: 1000,
-        background: scrolled || !isHome
-          ? 'rgba(5, 8, 22, 0.92)'
-          : 'rgba(5, 8, 22, 0.65)',
-        backdropFilter: 'blur(16px)',
-        WebkitBackdropFilter: 'blur(16px)',
-        borderBottom: scrolled
-          ? '1px solid rgba(85, 214, 255, 0.16)'
-          : '1px solid rgba(255, 255, 255, 0.06)',
-        transition: 'all 0.3s ease',
-      }}
-      role="banner"
-    >
-      <div
-        className="container"
-        style={{
+    <header role="banner" style={{ position: 'sticky', top: 0, zIndex: 1000 }}>
+      {/* ── TOP HEADER BAR — dark navy/teal gradient ── */}
+      <div style={{
+        background: 'linear-gradient(135deg, #0C2340 0%, #0D3D50 60%, #0A3D4A 100%)',
+        boxShadow: '0 2px 8px rgba(0,0,0,0.28)',
+      }}>
+        <div style={{
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          height: '70px',
-        }}
-      >
-        {/* Brand */}
-        <button
-          style={styles.brand}
-          onClick={() => handleNavClick('home')}
-          aria-label="Earth's Hidden Signals - Go to Home"
-        >
-          <div style={styles.logoIcon}>
-            <Globe size={18} color="#55D6FF" />
-          </div>
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', textAlign: 'left' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <span style={styles.brandTitle}>Earth's Hidden Signals</span>
-              <span style={styles.brandBadge}>NASA APPS</span>
+          height: '58px',
+          padding: '0 20px',
+          maxWidth: '1320px',
+          margin: '0 auto',
+          gap: '16px',
+        }}>
+          {/* Brand */}
+          <button
+            onClick={() => handleNavClick('home')}
+            aria-label="Earth's Hidden Signals — Go to Home"
+            style={{
+              display: 'flex', alignItems: 'center', gap: '10px',
+              background: 'transparent', border: 'none', cursor: 'pointer',
+              textAlign: 'left', padding: 0, flexShrink: 0,
+            }}
+          >
+            <div style={{
+              width: '40px', height: '40px', borderRadius: '9px',
+              background: 'rgba(255,255,255,0.12)',
+              border: '1px solid rgba(255,255,255,0.25)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              flexShrink: 0,
+            }}>
+              <Globe size={20} color="#4ADE80" />
             </div>
-            <span style={styles.brandSubtitle}>South Asia Environmental Intelligence</span>
-          </div>
-        </button>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span style={{
+                  fontFamily: "'Outfit', sans-serif",
+                  fontSize: '1.0rem', fontWeight: '800',
+                  color: '#FFFFFF', letterSpacing: '-0.01em', lineHeight: 1.2,
+                }}>Earth's Hidden Signals</span>
+                <span style={{
+                  fontSize: '0.6rem', fontWeight: '700',
+                  color: '#4ADE80',
+                  fontFamily: "'JetBrains Mono', monospace",
+                  background: 'rgba(74, 222, 128, 0.15)',
+                  padding: '1px 6px', borderRadius: '3px',
+                  border: '1px solid rgba(74, 222, 128, 0.3)',
+                  letterSpacing: '0.04em',
+                }}>NASA APPS</span>
+              </div>
+              <span style={{
+                fontSize: '0.63rem', color: 'rgba(255,255,255,0.6)',
+                fontFamily: "'Inter', sans-serif",
+                fontWeight: '400', letterSpacing: '0.01em',
+              }}>South Asia Environmental Intelligence</span>
+            </div>
+          </button>
 
-        {/* Desktop Nav */}
-        <nav style={styles.desktopNav} aria-label="Main navigation">
+          {/* Status indicators */}
+          <div style={{
+            display: 'flex', alignItems: 'center', gap: '10px',
+            marginLeft: 'auto', flexShrink: 0,
+          }}>
+            {/* Data feed status */}
+            <div style={{
+              display: 'flex', alignItems: 'center', gap: '5px',
+              background: 'rgba(255,255,255,0.08)',
+              border: '1px solid rgba(255,255,255,0.15)',
+              borderRadius: '14px', padding: '4px 10px',
+              fontSize: '0.67rem',
+              fontFamily: "'JetBrains Mono', monospace",
+              color: 'rgba(255,255,255,0.75)',
+            }}>
+              <span style={{
+                width: '6px', height: '6px', borderRadius: '50%',
+                background: '#4ADE80', boxShadow: '0 0 5px #4ADE80',
+                animation: 'pulse-dot 2s ease-in-out infinite',
+                flexShrink: 0,
+              }} />
+              <span>DATA ACTIVE</span>
+            </div>
+
+            {/* UTC Clock */}
+            <div style={{
+              display: 'flex', alignItems: 'center', gap: '5px',
+              background: 'rgba(255,255,255,0.08)',
+              border: '1px solid rgba(255,255,255,0.15)',
+              borderRadius: '14px', padding: '4px 10px',
+              fontSize: '0.67rem',
+              fontFamily: "'JetBrains Mono', monospace",
+              color: 'rgba(255,255,255,0.75)',
+            }}>
+              <Activity size={10} color="rgba(255,255,255,0.5)" />
+              <span>UTC {fmtTime}</span>
+            </div>
+
+            {/* Satellite indicator */}
+            <div style={{
+              display: 'flex', alignItems: 'center', gap: '5px',
+              background: 'rgba(255,255,255,0.08)',
+              border: '1px solid rgba(255,255,255,0.15)',
+              borderRadius: '14px', padding: '4px 10px',
+              fontSize: '0.67rem',
+              fontFamily: "'JetBrains Mono', monospace",
+              color: 'rgba(255,255,255,0.75)',
+            }}>
+              <Satellite size={10} color="rgba(255,255,255,0.5)" />
+              <span>4 REGIONS</span>
+            </div>
+
+            {/* Mobile menu toggle */}
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}
+              aria-expanded={mobileMenuOpen}
+              style={{
+                display: 'none',
+                background: 'rgba(255,255,255,0.1)',
+                border: '1px solid rgba(255,255,255,0.2)',
+                borderRadius: '6px',
+                color: '#FFFFFF', cursor: 'pointer',
+                padding: '6px 8px',
+              }}
+              className="mobile-menu-toggle"
+            >
+              {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* ── NAVIGATION BAR — green/teal ── */}
+      <div style={{
+        background: '#1A5C4A',
+        borderTop: '1px solid rgba(255,255,255,0.08)',
+        boxShadow: '0 2px 6px rgba(0,0,0,0.2)',
+      }}>
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          maxWidth: '1320px',
+          margin: '0 auto',
+          padding: '0 20px',
+          height: '40px',
+          gap: '2px',
+          overflowX: 'auto',
+          scrollbarWidth: 'none',
+          msOverflowStyle: 'none',
+        }}>
           {navItems.map((item) => {
-            const isActive = activeTab === item.id;
+            const isActive = activeTab === item.id ||
+              (item.id === 'explore' && activeTab === 'trends') ||
+              (item.id === 'historical' && activeTab === 'evidence') ||
+              (item.id === 'methodology' && activeTab === 'science');
             return (
               <button
                 key={item.id}
                 onClick={() => handleNavClick(item.id)}
                 aria-current={isActive ? 'page' : undefined}
                 style={{
-                  ...styles.navLink,
-                  ...(isActive ? styles.navLinkActive : {}),
+                  display: 'inline-flex', alignItems: 'center', gap: '5px',
+                  padding: '7px 13px', height: '100%',
+                  fontFamily: "'Inter', sans-serif",
+                  fontSize: '0.78rem', fontWeight: isActive ? '600' : '500',
+                  color: isActive ? '#FFFFFF' : '#C8F0E4',
+                  background: isActive ? 'rgba(255,255,255,0.15)' : 'transparent',
+                  border: 'none', cursor: 'pointer',
+                  whiteSpace: 'nowrap',
+                  transition: 'all 0.12s ease',
+                  borderRadius: '4px',
+                  position: 'relative',
+                }}
+                onMouseEnter={e => {
+                  if (!isActive) e.currentTarget.style.background = 'rgba(255,255,255,0.1)';
+                }}
+                onMouseLeave={e => {
+                  if (!isActive) e.currentTarget.style.background = 'transparent';
                 }}
               >
                 <span>{item.label}</span>
                 {item.badge && (
-                  <span style={styles.liveNavBadge}>
-                    <span style={styles.livePulseDot} />
+                  <span style={{
+                    display: 'inline-flex', alignItems: 'center', gap: '3px',
+                    background: '#4ADE80', color: '#0C2340',
+                    borderRadius: '3px', fontSize: '0.56rem', fontWeight: '800',
+                    padding: '1px 5px', fontFamily: "'JetBrains Mono', monospace",
+                  }}>
+                    <span style={{
+                      width: '4px', height: '4px', borderRadius: '50%',
+                      background: '#0C2340', animation: 'pulse-dot 1.5s infinite',
+                    }} />
                     {item.badge}
                   </span>
                 )}
-                {isActive && <div style={styles.navActiveBar} />}
+                {isActive && (
+                  <div style={{
+                    position: 'absolute', bottom: '0', left: '0', right: '0',
+                    height: '2px', background: '#4ADE80',
+                    borderRadius: '2px 2px 0 0',
+                  }} />
+                )}
               </button>
             );
           })}
-        </nav>
-
-        {/* CTA */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <button
-            className="btn-primary"
-            onClick={() => handleNavClick('explore')}
-            style={{ padding: '9px 18px', fontSize: '0.84rem' }}
-            aria-label="Explore Environmental Intelligence Dashboard"
-          >
-            <span>Explore Signals</span>
-            <ArrowRight size={14} />
-          </button>
-
-          {/* Mobile toggle */}
-          <button
-            style={styles.mobileMenuToggle}
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}
-            aria-expanded={mobileMenuOpen}
-          >
-            {mobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
-          </button>
         </div>
       </div>
 
-      {/* Mobile Drawer */}
+      {/* ── MOBILE DRAWER ── */}
       {mobileMenuOpen && (
-        <div style={styles.mobileDrawer} role="dialog" aria-label="Mobile navigation">
+        <div style={{
+          background: '#0C2340',
+          borderBottom: '1px solid rgba(255,255,255,0.12)',
+          padding: '12px 16px',
+          display: 'flex', flexDirection: 'column', gap: '4px',
+        }} role="dialog" aria-label="Mobile navigation">
           {navItems.map((item) => {
             const isActive = activeTab === item.id;
             return (
@@ -135,176 +255,44 @@ export default function Navbar({ activeTab, setActiveTab }) {
                 key={item.id}
                 onClick={() => handleNavClick(item.id)}
                 style={{
-                  ...styles.mobileNavLink,
-                  ...(isActive ? styles.mobileNavLinkActive : {}),
+                  background: isActive ? 'rgba(74, 222, 128, 0.12)' : 'transparent',
+                  border: 'none',
+                  color: isActive ? '#4ADE80' : 'rgba(255,255,255,0.8)',
+                  fontSize: '0.88rem', fontWeight: isActive ? '700' : '500',
+                  padding: '10px 12px', cursor: 'pointer',
+                  textAlign: 'left', display: 'flex',
+                  justifyContent: 'space-between', alignItems: 'center',
+                  fontFamily: "'Inter', sans-serif",
+                  borderRadius: '6px', transition: 'background 0.15s ease',
                 }}
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <span>{item.label}</span>
                   {item.badge && (
-                    <span style={styles.liveNavBadge}>
-                      {item.badge}
-                    </span>
+                    <span style={{
+                      background: '#4ADE80', color: '#0C2340',
+                      borderRadius: '3px', fontSize: '0.58rem', fontWeight: '800',
+                      padding: '1px 5px',
+                    }}>{item.badge}</span>
                   )}
                 </div>
-                {isActive && <span style={{ color: '#55D6FF', fontSize: '0.8rem' }}>●</span>}
+                {isActive && <span style={{ color: '#4ADE80', fontSize: '0.8rem' }}>●</span>}
               </button>
             );
           })}
-          <div style={{ marginTop: '14px', paddingTop: '14px', borderTop: '1px solid rgba(38,54,75,0.6)' }}>
-            <button
-              className="btn-primary"
-              onClick={() => handleNavClick('explore')}
-              style={{ width: '100%', justifyContent: 'center' }}
-            >
-              <span>Explore Environmental Signals</span>
-              <ArrowRight size={15} />
-            </button>
-          </div>
         </div>
       )}
+
+      <style>{`
+        @keyframes pulse-dot {
+          0%, 100% { opacity: 1; transform: scale(1); }
+          50% { opacity: 0.5; transform: scale(0.85); }
+        }
+        .mobile-menu-toggle { display: none !important; }
+        @media (max-width: 768px) {
+          .mobile-menu-toggle { display: flex !important; }
+        }
+      `}</style>
     </header>
   );
 }
-
-const styles = {
-  brand: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '10px',
-    cursor: 'pointer',
-    background: 'transparent',
-    border: 'none',
-    padding: 0,
-    textDecoration: 'none',
-  },
-  logoIcon: {
-    width: '36px',
-    height: '36px',
-    borderRadius: '10px',
-    background: 'linear-gradient(135deg, rgba(85, 214, 255, 0.15) 0%, rgba(55, 214, 163, 0.1) 100%)',
-    border: '1px solid rgba(85, 214, 255, 0.35)',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    flexShrink: 0,
-    boxShadow: '0 0 16px rgba(85, 214, 255, 0.2)',
-  },
-  brandTitle: {
-    fontFamily: "'Outfit', sans-serif",
-    fontSize: '0.98rem',
-    fontWeight: '800',
-    color: '#FFFFFF',
-    letterSpacing: '-0.02em',
-    lineHeight: 1.2,
-  },
-  brandSubtitle: {
-    fontSize: '0.66rem',
-    color: '#7E8EA6',
-    fontFamily: "'Inter', sans-serif",
-    fontWeight: '500',
-    letterSpacing: '0.02em',
-  },
-  brandBadge: {
-    fontSize: '0.62rem',
-    fontWeight: '700',
-    color: '#55D6FF',
-    fontFamily: "'JetBrains Mono', monospace",
-    background: 'rgba(85, 214, 255, 0.1)',
-    padding: '1px 5px',
-    borderRadius: '4px',
-    border: '1px solid rgba(85, 214, 255, 0.25)',
-    letterSpacing: '0.04em',
-  },
-  desktopNav: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '18px',
-  },
-  navLink: {
-    background: 'transparent',
-    border: 'none',
-    color: '#A6B4C8',
-    fontSize: '0.84rem',
-    fontWeight: '500',
-    padding: '8px 2px',
-    cursor: 'pointer',
-    transition: 'all 0.2s ease',
-    fontFamily: "'Inter', sans-serif",
-    position: 'relative',
-    display: 'inline-flex',
-    alignItems: 'center',
-    gap: '6px',
-  },
-  navLinkActive: {
-    color: '#FFFFFF',
-    fontWeight: '700',
-  },
-  navActiveBar: {
-    position: 'absolute',
-    bottom: '-4px',
-    left: '0',
-    right: '0',
-    height: '2px',
-    background: 'linear-gradient(90deg, #55D6FF, #37D6A3)',
-    borderRadius: '2px',
-    boxShadow: '0 0 8px rgba(85, 214, 255, 0.6)',
-  },
-  liveNavBadge: {
-    display: 'inline-flex',
-    alignItems: 'center',
-    gap: '4px',
-    background: 'rgba(55, 214, 163, 0.15)',
-    color: '#37D6A3',
-    border: '1px solid rgba(55, 214, 163, 0.35)',
-    borderRadius: '4px',
-    fontSize: '0.6rem',
-    fontWeight: '800',
-    padding: '1px 5px',
-    fontFamily: "'JetBrains Mono', monospace",
-  },
-  livePulseDot: {
-    width: '4px',
-    height: '4px',
-    borderRadius: '50%',
-    background: '#37D6A3',
-    boxShadow: '0 0 4px #37D6A3',
-  },
-  mobileMenuToggle: {
-    display: 'none',
-    background: 'transparent',
-    border: 'none',
-    color: '#F4F7FB',
-    cursor: 'pointer',
-    padding: '6px',
-  },
-  mobileDrawer: {
-    background: '#080D1B',
-    borderBottom: '1px solid rgba(85, 214, 255, 0.15)',
-    padding: '16px 20px',
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '8px',
-  },
-  mobileNavLink: {
-    background: 'transparent',
-    border: 'none',
-    color: '#A6B4C8',
-    fontSize: '0.92rem',
-    fontWeight: '500',
-    padding: '10px 8px',
-    cursor: 'pointer',
-    textAlign: 'left',
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    fontFamily: "'Inter', sans-serif",
-    borderRadius: '6px',
-    transition: 'background 0.2s ease',
-  },
-  mobileNavLinkActive: {
-    color: '#55D6FF',
-    fontWeight: '700',
-    background: 'rgba(85, 214, 255, 0.08)',
-  },
-};

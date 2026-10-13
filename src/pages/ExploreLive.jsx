@@ -366,10 +366,9 @@ export default function ExploreLive({ selectedRegionId, setSelectedRegionId }) {
                 preferCanvas={true}
               >
                 <TileLayer
-                  attribution='&copy; <a href="https://carto.com/">CARTO</a> | &copy; <a href="https://openstreetmap.org">OSM</a>'
-                  url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
-                  maxZoom={19}
-                  subdomains="abcd"
+                  attribution='&copy; <a href="https://www.esri.com/">Esri</a> &mdash; Esri, DeLorme, NAVTEQ'
+                  url="https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}"
+                  maxZoom={16}
                 />
 
                 {/* Fly to selected city */}

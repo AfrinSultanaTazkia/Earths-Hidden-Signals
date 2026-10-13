@@ -219,12 +219,12 @@ export default function CaseStudies({ selectedRegionId }) {
             <div style={styles.colCard}>
               <div style={styles.colHeader}>
                 <AlertCircle size={18} color="var(--color-cyan)" />
-                <h4 style={{ color: '#FFF', fontSize: '1rem' }}>What Should Be Monitored?</h4>
+                <h4 style={{ color: '#0C2340', fontSize: '1rem', fontWeight: '700' }}>What Should Be Monitored?</h4>
               </div>
               <ul style={styles.checkList}>
                 {currentCase.whatToMonitor.map((item, i) => (
                   <li key={i} style={styles.checkItem}>
-                    <span style={{ color: 'var(--color-cyan)', fontWeight: '700' }}>•</span>
+                    <span style={{ color: '#0899C4', fontWeight: '700' }}>•</span>
                     <span>{item}</span>
                   </li>
                 ))}
@@ -234,12 +234,12 @@ export default function CaseStudies({ selectedRegionId }) {
             <div style={styles.colCard}>
               <div style={styles.colHeader}>
                 <ShieldCheck size={18} color="var(--color-green)" />
-                <h4 style={{ color: '#FFF', fontSize: '1rem' }}>Preparedness Considerations</h4>
+                <h4 style={{ color: '#0C2340', fontSize: '1rem', fontWeight: '700' }}>Preparedness Considerations</h4>
               </div>
               <ul style={styles.checkList}>
                 {currentCase.preparednessConsiderations.map((item, i) => (
                   <li key={i} style={styles.checkItem}>
-                    <span style={{ color: 'var(--color-green)', fontWeight: '700' }}>✓</span>
+                    <span style={{ color: '#1B8A62', fontWeight: '700' }}>✓</span>
                     <span>{item}</span>
                   </li>
                 ))}
@@ -274,24 +274,28 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     gap: '8px',
-    background: 'rgba(255,255,255,0.03)',
-    border: '1px solid var(--border-subtle)',
-    color: 'var(--text-muted)',
+    background: '#FFFFFF',
+    border: '1px solid #D8E2EF',
+    color: '#4A5568',
     fontSize: '0.9rem',
     fontWeight: '600',
-    padding: '12px 20px',
-    borderRadius: 'var(--radius-md)',
+    padding: '10px 18px',
+    borderRadius: '8px',
     cursor: 'pointer',
-    transition: 'all 0.2s'
+    transition: 'all 0.15s ease'
   },
   caseTabBtnActive: {
-    background: 'var(--color-cyan-glow)',
-    color: '#FFF',
-    borderColor: 'var(--color-cyan)'
+    background: '#1A5C4A',
+    color: '#FFFFFF',
+    borderColor: '#1A5C4A',
+    boxShadow: '0 2px 8px rgba(26, 92, 74, 0.25)'
   },
   caseMainCard: {
-    padding: '36px',
-    borderRadius: 'var(--radius-lg)'
+    background: '#FFFFFF',
+    border: '1px solid #D8E2EF',
+    padding: '32px',
+    borderRadius: '12px',
+    boxShadow: '0 2px 12px rgba(12, 35, 64, 0.08)'
   },
   caseHeader: {
     marginBottom: '24px'
@@ -299,11 +303,12 @@ const styles = {
   caseTitle: {
     fontSize: '1.8rem',
     fontWeight: '800',
+    color: '#0C2340',
     marginTop: '6px'
   },
   caseSubtitle: {
     fontSize: '0.95rem',
-    color: 'var(--color-cyan)',
+    color: '#0899C4',
     marginTop: '4px'
   },
   varsRow: {
@@ -313,26 +318,28 @@ const styles = {
     marginBottom: '30px'
   },
   varCard: {
-    background: 'rgba(0,0,0,0.3)',
-    border: '1px solid var(--border-subtle)',
-    borderRadius: 'var(--radius-md)',
+    background: '#F8FAFC',
+    border: '1px solid #D8E2EF',
+    borderRadius: '8px',
     padding: '16px'
   },
   varName: {
     fontSize: '0.78rem',
-    color: 'var(--text-muted)',
-    textTransform: 'uppercase'
+    color: '#718096',
+    textTransform: 'uppercase',
+    fontWeight: '600'
   },
   varVal: {
     fontSize: '1.2rem',
     fontWeight: '700',
-    color: '#FFF',
+    color: '#0C2340',
     marginTop: '4px'
   },
   varTrend: {
     fontSize: '0.75rem',
-    color: 'var(--color-cyan)',
-    marginTop: '2px'
+    color: '#0D5C47',
+    marginTop: '2px',
+    fontWeight: '600'
   },
   sectionHeading: {
     display: 'flex',
@@ -340,7 +347,8 @@ const styles = {
     gap: '10px',
     fontSize: '1.15rem',
     marginBottom: '16px',
-    color: '#FFF'
+    color: '#0C2340',
+    fontWeight: '700'
   },
   timelineList: {
     display: 'flex',
@@ -352,14 +360,15 @@ const styles = {
     display: 'flex',
     gap: '16px',
     alignItems: 'center',
-    background: 'rgba(255,255,255,0.02)',
-    border: '1px solid rgba(255,255,255,0.05)',
+    background: '#F8FAFC',
+    border: '1px solid #E2E8F0',
     borderRadius: '8px',
     padding: '12px 16px'
   },
   yearBox: {
-    background: 'var(--color-cyan-glow)',
-    color: 'var(--color-cyan)',
+    background: '#E8F4FA',
+    color: '#0899C4',
+    border: '1px solid #BAE6FD',
     padding: '4px 10px',
     borderRadius: '6px',
     fontSize: '0.85rem',
@@ -367,22 +376,22 @@ const styles = {
   },
   noteText: {
     fontSize: '0.88rem',
-    color: 'var(--text-muted)'
+    color: '#2D3748'
   },
   causationNotice: {
     display: 'flex',
     gap: '8px',
     alignItems: 'center',
     fontSize: '0.78rem',
-    color: 'var(--text-muted)',
-    background: 'rgba(245, 158, 11, 0.05)',
-    border: '1px solid rgba(245, 158, 11, 0.2)',
+    color: '#92400E',
+    background: '#FFFBEB',
+    border: '1px solid #FCD34D',
     borderRadius: '6px',
     padding: '8px 12px'
   },
   paragraphText: {
     fontSize: '0.95rem',
-    color: 'var(--text-muted)',
+    color: '#4A5568',
     lineHeight: 1.6
   },
   twoColGrid: {
@@ -391,9 +400,9 @@ const styles = {
     gap: '24px'
   },
   colCard: {
-    background: 'rgba(0,0,0,0.3)',
-    border: '1px solid var(--border-subtle)',
-    borderRadius: 'var(--radius-md)',
+    background: '#F8FAFC',
+    border: '1px solid #D8E2EF',
+    borderRadius: '8px',
     padding: '20px'
   },
   colHeader: {
@@ -412,7 +421,7 @@ const styles = {
     display: 'flex',
     gap: '10px',
     fontSize: '0.88rem',
-    color: 'var(--text-muted)',
+    color: '#2D3748',
     lineHeight: 1.4
   }
 };

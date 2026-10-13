@@ -73,16 +73,22 @@ export default function ExploreTrends({ selectedRegionId, setSelectedRegionId, s
   const historicalData = GENERATE_HISTORICAL_DATA(region.id, variable.id);
   const trendSummary = GET_TREND_SUMMARY(region.id, variable.id);
 
-  // Sen's Slope Indicator Trend Chart Data for Image 2 Bottom Left
+  // Sen's Slope bar chart data — one bar per variable for selected region
   const indicatorTrendData = VARIABLES.map(v => {
     const sum = GET_TREND_SUMMARY(region.id, v.id);
-    const slopeNum = parseFloat(sum.sensSlope) || 0;
+    // Parse the numeric slope value from sensSlope string like "+0.042 °C/yr"
+    const slopeStr = sum.sensSlope || '0';
+    const slopeNum = parseFloat(slopeStr.replace(/[^\d.\-+]/g, '')) || 0;
     return {
       name: v.name,
       slope: slopeNum,
-      unit: v.unit.split('/')[0],
+      unit: v.trendUnit || v.unit,
       isSignificant: sum.isSignificant,
-      color: v.color || '#55D6FF'
+      statusType: sum.statusType,
+      // Color by significance status — not by direction alone
+      color: !sum.isSignificant
+        ? (sum.statusType === 'inconclusive' ? '#7C6FA6' : '#718096')
+        : sum.statusType === 'increasing' ? '#16866B' : '#D97732'
     };
   });
 
@@ -254,9 +260,9 @@ export default function ExploreTrends({ selectedRegionId, setSelectedRegionId, s
                       <Tooltip
                         contentStyle={{ background: '#0D1527', border: '1px solid #55D6FF', borderRadius: '6px', fontSize: '11px' }}
                       />
-                      <Bar dataKey="slope" fill="#55D6FF" radius={[0, 4, 4, 0]}>
+                      <Bar dataKey="slope" radius={[0, 4, 4, 0]}>
                         {indicatorTrendData.map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={entry.slope >= 0 ? '#55D6FF' : '#FF647C'} />
+                          <Cell key={`cell-${index}`} fill={entry.color} />
                         ))}
                       </Bar>
                     </BarChart>
@@ -267,35 +273,54 @@ export default function ExploreTrends({ selectedRegionId, setSelectedRegionId, s
                 </div>
               </div>
 
-              {/* SUB-PANEL 2: 5-STEP AUTOMATIC REGIONAL SYNTHESIS & DECISION SUPPORT */}
+              {/* SUB-PANEL 2: AUTOMATIC EVIDENCE SYNTHESIS */}
               <div style={styles.indicatorTrendCard} className="glass-panel">
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                  <span style={styles.subCardTitle}>5-STEP EVIDENCE SYNTHESIS</span>
-                  <span className="badge badge-cyan" style={{ fontSize: '0.6rem' }}>AUTO-SYNTHESIS</span>
+                  <span style={styles.subCardTitle}>EVIDENCE SYNTHESIS</span>
+                  <span style={{ background: 'rgba(85,214,255,0.1)', color: '#55D6FF', border: '1px solid rgba(85,214,255,0.25)', borderRadius: '4px', fontSize: '0.6rem', fontWeight: '700', padding: '2px 6px', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.04em' }}>AUTO</span>
                 </div>
 
                 <div style={styles.synthesisScroll}>
                   <div style={styles.synthItem}>
                     <strong style={{ color: '#55D6FF' }}>1. What did we find?</strong>
-                    <p style={styles.synthText}>{trendSummary.whatIsChanging || `${variable.name} is ${trendSummary.directionLabel}`} at {trendSummary.howFastRate || trendSummary.rate}.</p>
-                  </div>
-
-                  <div style={styles.synthItem}>
-                    <strong style={{ color: '#37D6A3' }}>2. Historical Comparison:</strong>
                     <p style={styles.synthText}>
-                      Baseline: {(historicalData.slice(0, 10).reduce((a, c) => a + c.value, 0) / 10).toFixed(1)} vs Recent: {(historicalData.slice(-5).reduce((a, c) => a + c.value, 0) / 5).toFixed(1)} {variable.unit.split('/')[0]}
+                      {trendSummary.whatIsChanging}. Rate: {trendSummary.howFastRate || trendSummary.sensSlope || '—'}.
                     </p>
                   </div>
 
                   <div style={styles.synthItem}>
-                    <strong style={{ color: '#FFBF69' }}>3. What could this mean?</strong>
-                    <p style={styles.synthText}>{trendSummary.simpleMeaning}</p>
+                    <strong style={{ color: trendSummary.isSignificant ? '#16866B' : '#718096' }}>2. Is this statistically significant?</strong>
+                    <p style={styles.synthText}>
+                      {trendSummary.isSignificant
+                        ? `Yes — ${trendSummary.pValueLabel}. Mann-Kendall Z = ${trendSummary.mkZ}.`
+                        : `No — ${trendSummary.pValueLabel || 'p ≥ 0.05'}. No statistically detectable monotonic trend.`
+                      }
+                    </p>
                   </div>
 
                   <div style={styles.synthItem}>
-                    <strong style={{ color: '#818CF8' }}>4. Decision Support:</strong>
+                    <strong style={{ color: '#FFBF69' }}>3. Historical context:</strong>
                     <p style={styles.synthText}>
-                      {region.id === 'bangladesh' ? 'Monitor upstream discharge and soil saturation ahead of monsoon peaks.' : region.id === 'nepal' ? 'Track 24-hr rainfall spikes on steep slopes to anticipate shear stress.' : region.id === 'india' ? 'Monitor MODIS thermal hotspots during pre-monsoon heat spells.' : 'Track canal gates and rapid monsoon moisture swings.'}
+                      Early period avg: {(historicalData.slice(0, 10).reduce((a, c) => a + c.value, 0) / Math.max(historicalData.slice(0, 10).length, 1)).toFixed(selectedVariableId === 'vegetation' || selectedVariableId === 'soil_moisture' ? 4 : 1)}
+                      {' → '}Recent avg: {(historicalData.slice(-5).reduce((a, c) => a + c.value, 0) / 5).toFixed(selectedVariableId === 'vegetation' || selectedVariableId === 'soil_moisture' ? 4 : 1)} {variable.unit.split('/')[0]}.
+                      Note: a difference alone does not confirm a significant trend.
+                    </p>
+                  </div>
+
+                  <div style={styles.synthItem}>
+                    <strong style={{ color: '#818CF8' }}>4. What can we prepare for?</strong>
+                    <p style={styles.synthText}>
+                      {region.id === 'bangladesh' ? 'Monitor upstream river discharge and soil saturation ahead of monsoon peaks. Refer to official BWDB advisories.'
+                        : region.id === 'nepal' ? 'Track 24-hr rainfall totals in steep catchments. Consult NDRRMA advisories for slope hazard zones.'
+                        : region.id === 'india' ? 'Monitor FIRMS thermal hotspots during pre-monsoon dry periods. Refer to forest fire authority bulletins.'
+                        : 'Monitor seasonal river inflow and PDMA alerts. Pakistan conditions vary greatly by sub-region.'}
+                    </p>
+                  </div>
+
+                  <div style={{ ...styles.synthItem, borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '6px', marginTop: '2px' }}>
+                    <p style={{ ...styles.synthText, fontSize: '0.68rem', color: '#4F637A', fontStyle: 'italic' }}>
+                      Data note: Values are modeled regional estimates from published trend rates, not direct API results.
+                      Analysis period: {trendSummary.samplePeriod || '2001–2025'}.
                     </p>
                   </div>
                 </div>
